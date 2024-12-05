@@ -19,10 +19,17 @@ class CreateEventOrganisasiTable extends Migration
             $table->foreign('id_organisasi')->references('id_organisasi')->on('user_organisasi');
             $table->timestamps();
         });
+
+        Schema::create('detail_waktu_acaras', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('id_event')->constrained('event_organisasi')->onDelete('cascade');
+            $table->timestamps();
+        });
     }
 
     public function down()
     {
+        Schema::dropIfExists('detail_waktu_acaras');
         Schema::dropIfExists('event_organisasi');
     }
 }

@@ -14,6 +14,8 @@ class CreateRekeningPerusahaanTable extends Migration
             $table->integer('nomorrekeningperusahaan');
             $table->enum('namabankperusahaan', ['BCA', 'BCA Digital', 'SEABANK', 'Mandiri', 'BNI', 'DBS']);
             $table->string('pemilikrekeningperusahaan', 45);
+            $table->boolean("isActive")->default(true);
+            $table->foreignId('id_perusahaan')->constrained('user_perusahaan')->onDelete('cascade');
             $table->timestamps();
         });
     }

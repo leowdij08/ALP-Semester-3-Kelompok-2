@@ -14,6 +14,8 @@ class CreateRekeningOrganisasiTable extends Migration
             $table->integer('nomorrekeningorganisasi');
             $table->enum('namabankorganisasi', ['BCA', 'BCA DIGITAL', 'Mandiri', 'BNI', 'DBS']);
             $table->string('pemilikrekeningorganisasi', 45);
+            $table->boolean("isActive")->default(true);
+            $table->foreignId('id_organisasi')->constrained('user_organisasi')->onDelete('cascade');
             $table->timestamps();
         });
     }
