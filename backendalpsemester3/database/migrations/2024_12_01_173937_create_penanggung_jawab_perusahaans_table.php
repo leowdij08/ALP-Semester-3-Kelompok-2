@@ -11,10 +11,11 @@ class CreatePenanggungJawabPerusahaansTable extends Migration
         Schema::create('user_perusahaan', function (Blueprint $table) {
             $table->id('id_perusahaan');
             $table->string('namaperusahaan', 45);
-            $table->string('emailperusahaan', 45);
             $table->enum('kotadomisiliperusahaan', ['Makassar', 'Jakarta', 'Surabaya']);
             $table->string('nomorteleponperusahaan');
-            $table->string('katasandiperusahaan', 45);
+            $table->unsignedBigInteger('id_user');
+            $table->index('id_user');
+            $table->foreign('id_user')->references("id")->on("users")->onDelete('cascade');
             $table->timestamps();
         });
 

@@ -11,10 +11,11 @@ class CreatePenanggungJawabOrganisasisTable extends Migration
         Schema::create('user_organisasi', function (Blueprint $table) {
             $table->id('id_organisasi');
             $table->string('namaorganisasi', 45);
-            $table->string('emailorganisasi', 45);
             $table->enum('kotadomisiliorganisasi', ['Makassar', 'Jakarta', 'Surabaya']);
             $table->string('nomorteleponorganisasi');
-            $table->string('katasandiorganisasi', 45);
+            $table->unsignedBigInteger('id_user');
+            $table->index('id_user');
+            $table->foreign('id_user')->references("id")->on("users")->onDelete('cascade');
             $table->timestamps();
         });
 
