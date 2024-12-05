@@ -20,7 +20,9 @@ class CreatePenanggungJawabOrganisasisTable extends Migration
 
         Schema::create('penanggung_jawab_organisasi', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_organisasi')->constrained('user_organisasi')->onDelete('cascade');
+            $table->unsignedBigInteger('id_organisasi');
+            $table->index('id_organisasi');
+            $table->foreign('id_organisasi')->references("id_organisasi")->on("user_organisasi")->onDelete('cascade');
             $table->string('namalengkappjo', 45);
             $table->string('tanggallahirpjo', 45);
             $table->string('emailpjo', 45);

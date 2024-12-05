@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePenanggungJawabPerusahaanTable extends Migration
+class CreatePenanggungJawabPerusahaansTable extends Migration
 {
     public function up()
     {
@@ -20,7 +20,9 @@ class CreatePenanggungJawabPerusahaanTable extends Migration
 
         Schema::create('penanggung_jawab_perusahaan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_perusahaan')->constrained('user_perusahaan')->onDelete('cascade');
+            $table->unsignedBigInteger('id_perusahaan');
+            $table->index('id_perusahaan');
+            $table->foreign('id_perusahaan')->references("id_perusahaan")->on("user_perusahaan")->onDelete('cascade');
             $table->string('namalengkappjp', 45);
             $table->string('tanggallahirpjp', 45);
             $table->string('emailpjp', 45);

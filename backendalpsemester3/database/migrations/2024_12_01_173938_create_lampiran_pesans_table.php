@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLampiranPesanTable extends Migration
+class CreateLampiranPesansTable extends Migration
 {
     public function up()
     {
@@ -14,8 +14,8 @@ class CreateLampiranPesanTable extends Migration
             $table->enum('tipelampiran', ['Foto', 'Dokumen']);
             $table->string('namafile', 100);
             $table->binary('urlfile');
-            $table->foreign('id_chat')->references('id_chat')->on('chat');
-            $table->foreign('id_pesan')->references('id_pesan')->on('pesan_chat');
+            $table->foreign('id_chat')->references('id_chat')->on('chat')->onDelete("cascade");
+            $table->foreign('id_pesan')->references('id_pesan')->on('pesan_chat')->onDelete("cascade");
             $table->timestamps();
         });
     }
