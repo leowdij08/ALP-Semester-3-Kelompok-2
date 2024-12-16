@@ -3,8 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\UserOrganisasi;
+use App\Models\UserPerusahaan;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Faker\Factory as Faker;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,8 +20,26 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'email' => 'organisation@example.com',
+            'level' => 'organisasi',
+        ]);
+        User::factory()->create([
+            'email' => 'company@example.com',
+            'level' => 'perusahaan',
+        ]);
+
+        DB::table('user_organisasi')->insert([
+            'namaorganisasi' => fake()->name(),
+            'kotadomisiliorganisasi' => fake()->randomElement(['Makassar', 'Jakarta', 'Surabaya']),
+            'nomorteleponorganisasi' => fake()->phoneNumber(),
+            "id_user" => 1,
+        ]);
+
+        DB::table('user_perusahaan')->insert([
+            'namaperusahaan' => fake()->name(),
+            'kotadomisiliperusahaan' => fake()->randomElement(['Makassar', 'Jakarta', 'Surabaya']),
+            'nomorteleponperusahaan' => fake()->phoneNumber(),
+            "id_user" => 2,
         ]);
     }
 }
