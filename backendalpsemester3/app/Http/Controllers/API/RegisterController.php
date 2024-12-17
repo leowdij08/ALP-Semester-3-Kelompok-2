@@ -5,6 +5,10 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\User;
+use App\Models\UserOrganisasi;
+use App\Models\PenanggungJawabOrganisasi;
+use App\Models\UserPerusahaan;
+use App\Models\PenanggungJawabPerusahaan;
 use Illuminate\Support\Facades\Auth;
 use Validator;
 use Illuminate\Http\JsonResponse;
@@ -17,13 +21,17 @@ class RegisterController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function register(Request $request): JsonResponse
+    public function register_organisasi(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
+            'namaOrganisasi' => 'required',
             'email' => 'required|email',
             'password' => 'required',
-            'c_password' => 'required|same:password',
+            'kotaDomisiliOrganisasi' => 'in:Makassar,Jakarta,Surabaya',
+            'nomorTeleponOrganisasi' => 'required|regex:/[0-9]/',
+            'namaLengkapPenanggungJawab' => 'required',
+            'tanggalLahirPenanggungJawab' => 'required|date|date_format:Y-m-d|before:today',
+            'alamatLengkapPenanggungJawab' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -32,9 +40,59 @@ class RegisterController extends BaseController
 
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
-        $user = User::create($input);
+        $user = User::create([$input['email'], $input['password'], "organisasi"]);
+        $organisasi = UserOrganisasi::create([
+            $input['namaOrganisasi'],
+            $input['kotaDomisiliOrganisasi'],
+            $input['nomorTeleponOrganisasi'],
+            $user->id,
+        ]);
+        PenanggungJawabOrganisasi::create([
+            $organisasi->id,
+            $input['namaLengkapPenanggungJawab'],
+            $input['tanggalLahirPenanggungJawab'],
+            $input['alamatLengkapPenanggungJawab'],
+        ]);
         $success['token'] =  $user->createToken('MyApp')->plainTextToken;
-        $success['name'] =  $user->name;
+        $success['level'] =  $user->level;
+
+        return $this->sendResponse($success, 'User register successfully.');
+    }
+
+    public function register_perusahaan(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'namaPerusahaan' => 'required',
+            'email' => 'required|email',
+            'password' => 'required',
+            'kotaDomisiliPerusahaan' => 'in:Makassar,Jakarta,Surabaya',
+            'nomorTeleponPerusahaan' => 'required|regex:/[0-9]/',
+            'namaLengkapPenanggungJawab' => 'required',
+            'tanggalLahirPenanggungJawab' => 'required|date|date_format:Y-m-d|before:today',
+            'alamatLengkapPenanggungJawab' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
+
+        $input = $request->all();
+        $input['password'] = bcrypt($input['password']);
+        $user = User::create([$input['email'], $input['password'], "perusahaan"]);
+        $perusahaan = UserPerusahaan::create([
+            $input['namaPerusahaan'],
+            $input['kotaDomisiliPerusahaan'],
+            $input['nomorTeleponPerusahaan'],
+            $user->id,
+        ]);
+        PenanggungJawabPerusahaan::create([
+            $perusahaan->id,
+            $input['namaLengkapPenanggungJawab'],
+            $input['tanggalLahirPenanggungJawab'],
+            $input['alamatLengkapPenanggungJawab'],
+        ]);
+        $success['token'] =  $user->createToken('MyApp')->plainTextToken;
+        $success['level'] =  $user->level;
 
         return $this->sendResponse($success, 'User register successfully.');
     }
