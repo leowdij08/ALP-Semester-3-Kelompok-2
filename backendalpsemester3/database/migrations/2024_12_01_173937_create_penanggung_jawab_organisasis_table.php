@@ -28,7 +28,7 @@ class CreatePenanggungJawabOrganisasisTable extends Migration
             $table->string('tanggallahirpjo', 45);
             $table->string('emailpjo', 45);
             $table->string('alamatlengkappjo', 45);
-            $table->binary('ktppjo');
+            $table->longtext('ktppjo');
             $table->timestamps();
         });
     }

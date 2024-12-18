@@ -12,5 +12,6 @@ class UserOrganisasi extends Model
         'namaorganisasi',
         'kotadomisiliorganisasi',
         'nomorteleponorganisasi',
+        'id_user',
     ];
 }

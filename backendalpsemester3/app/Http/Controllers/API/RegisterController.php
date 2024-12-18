@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends BaseController
 {
@@ -23,78 +24,136 @@ class RegisterController extends BaseController
      */
     public function register_organisasi(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'namaOrganisasi' => 'required',
-            'email' => 'required|email',
-            'password' => 'required',
-            'kotaDomisiliOrganisasi' => 'in:Makassar,Jakarta,Surabaya',
-            'nomorTeleponOrganisasi' => 'required|regex:/[0-9]/',
-            'namaLengkapPenanggungJawab' => 'required',
-            'tanggalLahirPenanggungJawab' => 'required|date|date_format:Y-m-d|before:today',
-            'alamatLengkapPenanggungJawab' => 'required'
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'namaOrganisasi' => 'required',
+                'email' => 'required|email',
+                'password' => 'required',
+                'kotaDomisiliOrganisasi' => 'in:Makassar,Jakarta,Surabaya',
+                'nomorTeleponOrganisasi' => 'required|regex:/[0-9]/',
+                'namaLengkapPenanggungJawab' => 'required',
+                'tanggalLahirPenanggungJawab' => 'required|date|date_format:Y-m-d|before:today',
+                'alamatLengkapPenanggungJawab' => 'required',
+                'emailPenanggungJawab' => 'required|email',
+            ]);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
+            if ($validator->fails()) {
+                return $this->sendError('Validation Error.', $validator->errors());
+            }
+
+            $input = $request->all();
+            $input['password'] = Hash::make($input['password']);
+
+            $user = new User;
+            $user->email = $input['email'];
+            $user->password = $input['password'];
+            $user->level = "organisasi";
+            $user->save();
+
+            $dataOrganisasi = [
+                "namaorganisasi" => $input['namaOrganisasi'],
+                "kotadomisiliorganisasi" => $input['kotaDomisiliOrganisasi'],
+                "nomorteleponorganisasi" => $input['nomorTeleponOrganisasi'],
+            ];
+            DB::table('user_organisasi')->insert([
+                ...$dataOrganisasi,
+                "id_user" => $user->id,
+            ]);
+            $idOrganisasi = DB::table('user_organisasi')->where('id_user', $user->id)->value('id_organisasi');
+
+            $dataPenanggungJawab = [
+                "namalengkappjo" => $input['namaLengkapPenanggungJawab'],
+                "tanggallahirpjo" => $input['tanggalLahirPenanggungJawab'],
+                "alamatlengkappjo" => $input['alamatLengkapPenanggungJawab'],
+                "emailpjo" => $input['emailPenanggungJawab'],
+            ];
+            DB::table('penanggung_jawab_organisasi')->insert([
+                ...$dataPenanggungJawab,
+                "id_organisasi" => $idOrganisasi,
+                "ktppjo" => "pathToFile",
+            ]);
+
+            $success['email'] =  $input['email'];
+            $success['level'] =  $user->level;
+            $success['dataOrganisasi'] = $dataOrganisasi;
+            $success['dataPenanggungJawab'] = $dataPenanggungJawab;
+
+            return $this->sendResponse($success, 'User Organisasi register successfully.');
+        } catch (\Exception $e) {
+            if (isset($idOrganisasi)) {
+                DB::table('penanggung_jawab_organisasi')->where('id_organisasi', $idOrganisasi)->delete();
+                DB::table('user_organisasi')->where('id_organisasi', $idOrganisasi)->delete();
+            }
+            $user->delete();
+            return $this->sendError('Server Error.', $e->getMessage());
         }
-
-        $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
-        $user = User::create([$input['email'], $input['password'], "organisasi"]);
-        $organisasi = UserOrganisasi::create([
-            $input['namaOrganisasi'],
-            $input['kotaDomisiliOrganisasi'],
-            $input['nomorTeleponOrganisasi'],
-            $user->id,
-        ]);
-        PenanggungJawabOrganisasi::create([
-            $organisasi->id,
-            $input['namaLengkapPenanggungJawab'],
-            $input['tanggalLahirPenanggungJawab'],
-            $input['alamatLengkapPenanggungJawab'],
-        ]);
-        $success['token'] =  $user->createToken('MyApp')->plainTextToken;
-        $success['level'] =  $user->level;
-
-        return $this->sendResponse($success, 'User register successfully.');
     }
 
     public function register_perusahaan(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'namaPerusahaan' => 'required',
-            'email' => 'required|email',
-            'password' => 'required',
-            'kotaDomisiliPerusahaan' => 'in:Makassar,Jakarta,Surabaya',
-            'nomorTeleponPerusahaan' => 'required|regex:/[0-9]/',
-            'namaLengkapPenanggungJawab' => 'required',
-            'tanggalLahirPenanggungJawab' => 'required|date|date_format:Y-m-d|before:today',
-            'alamatLengkapPenanggungJawab' => 'required'
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'namaPerusahaan' => 'required',
+                'email' => 'required|email',
+                'password' => 'required',
+                'kotaDomisiliPerusahaan' => 'in:Makassar,Jakarta,Surabaya',
+                'nomorTeleponPerusahaan' => 'required|regex:/[0-9]/',
+                'namaLengkapPenanggungJawab' => 'required',
+                'tanggalLahirPenanggungJawab' => 'required|date|date_format:Y-m-d|before:today',
+                'alamatLengkapPenanggungJawab' => 'required',
+                'emailPenanggungJawab' => 'required|email',
+            ]);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
+            if ($validator->fails()) {
+                return $this->sendError('Validation Error.', $validator->errors());
+            }
+
+            $input = $request->all();
+            $input['password'] = Hash::make($input['password']);
+
+            $user = new User;
+            $user->email = $input['email'];
+            $user->password = $input['password'];
+            $user->level = "perusahaan";
+            $user->save();
+
+            $dataPerusahaan = [
+                "namaperusahaan" => $input['namaPerusahaan'],
+                "kotadomisiliperusahaan" => $input['kotaDomisiliPerusahaan'],
+                "nomorteleponperusahaan" => $input['nomorTeleponPerusahaan'],
+            ];
+            DB::table('user_perusahaan')->insert([
+                ...$dataPerusahaan,
+                "id_user" => $user->id,
+            ]);
+            $idPerusahaan = DB::table('user_perusahaan')->where('id_user', $user->id)->value('id_perusahaan');
+
+            $dataPenanggungJawab = [
+                "namalengkappjp" => $input['namaLengkapPenanggungJawab'],
+                "tanggallahirpjp" => $input['tanggalLahirPenanggungJawab'],
+                "alamatlengkappjp" => $input['alamatLengkapPenanggungJawab'],
+                "emailpjp" => $input['emailPenanggungJawab'],
+            ];
+            DB::table('penanggung_jawab_perusahaan')->insert([
+                ...$dataPenanggungJawab,
+                "id_perusahaan" => $idPerusahaan,
+                "ktppjp" => "pathToFile",
+            ]);
+
+            $success['email'] =  $input['email'];
+            $success['level'] =  $user->level;
+            $success['dataPerusahaan'] = $dataPerusahaan;
+            $success['dataPenanggungJawab'] = $dataPenanggungJawab;
+
+            return $this->sendResponse($success, 'User Perusahaan register successfully.');
+        } catch (\Exception $e) {
+            if (isset($idPerusahaan)) {
+                DB::table('penanggung_jawab_perusahaan')->where('id_perusahaan', $idPerusahaan)->delete();
+                DB::table('user_perusahaan')->where('id_perusahaan', $idPerusahaan)->delete();
+            }
+            $user->delete();
+            return $this->sendError('Server Error.', $e->getMessage());
         }
-
-        $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
-        $user = User::create([$input['email'], $input['password'], "perusahaan"]);
-        $perusahaan = UserPerusahaan::create([
-            $input['namaPerusahaan'],
-            $input['kotaDomisiliPerusahaan'],
-            $input['nomorTeleponPerusahaan'],
-            $user->id,
-        ]);
-        PenanggungJawabPerusahaan::create([
-            $perusahaan->id,
-            $input['namaLengkapPenanggungJawab'],
-            $input['tanggalLahirPenanggungJawab'],
-            $input['alamatLengkapPenanggungJawab'],
-        ]);
-        $success['token'] =  $user->createToken('MyApp')->plainTextToken;
-        $success['level'] =  $user->level;
-
-        return $this->sendResponse($success, 'User register successfully.');
     }
 
     /**
@@ -120,7 +179,7 @@ class RegisterController extends BaseController
         if (Auth::id()) {
             $user = Auth::user();
             $userData = DB::select('select * from user_' . $user->level . ' where id_user = "' . $user->id . '" limit 1')[0];
-            switch($user->level){
+            switch ($user->level) {
                 case "perusahaan":
                     $datas = [
                         "namaPerusahaan" => $userData->namaperusahaan,
