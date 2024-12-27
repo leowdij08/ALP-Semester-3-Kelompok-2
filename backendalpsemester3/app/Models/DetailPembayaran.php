@@ -18,12 +18,12 @@ class DetailPembayaran extends Model
         'biayalayananaplikasi',
     ];
 
-    public function pembayaran()
+    public function pembayarans()
     {
         return $this->belongsTo(PembayaranPerusahaan::class, 'id_pembayaran');
     }
 
-    public function RekeningTemu()
+    public function rekeningtemus()
     {
         return $this->belongsTo(RekeningTemu::class, 'id_rekeningtemu');
     }

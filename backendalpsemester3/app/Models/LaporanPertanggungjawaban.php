@@ -12,14 +12,20 @@ class LaporanPertanggungjawaban extends Model
     protected $table = 'laporan_pertanggung_jawabans';
 
     protected $fillable = [
-        'id_organisasi',
-        'judul',
-        'deskripsi',
-        'file_path',
+        'id_perusahaan',
+        'id_acara',
+        'dokumentasilpj',
+        'diterima',
+        'revisike',
     ];
 
-    public function organisasi()
+    public function perusahaan()
     {
-        return $this->belongsTo(UserOrganisasi::class, 'id_organisasi');
+        return $this->belongsTo(UserPerusahaan::class, 'id_perusahaan');
+    }
+
+    public function acaras()
+    {
+        return $this->belongsTo(Acara ::class, 'id_acara');
     }
 }

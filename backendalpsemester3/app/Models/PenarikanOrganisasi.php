@@ -12,12 +12,15 @@ class PenarikanOrganisasi extends Model
     protected $table = 'penarikan_organisasis';
 
     protected $fillable = [
+        'id_penarikan',
         'id_rekeningorganisasi',
-        'jumlah',
-        'tanggal',
+        'jumlahdanaditarik',
+        'tanggalpenarikan',
+        'waktupenarikan',
+        'buktipenarikan',
     ];
 
-    public function organisasi()
+    public function rekeningorganisasis()
     {
         return $this->belongsTo(RekeningOrganisasi::class, 'id_rekeningorganisasi');
     }

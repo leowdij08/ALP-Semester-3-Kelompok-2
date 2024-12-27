@@ -13,11 +13,12 @@ class LampiranPesan extends Model
 
     protected $fillable = [
         'id_pesan',
-        'file_path',
-        'file_type',
+        'tipelampiran',
+        'namafile',
+        'urlfile'
     ];
 
-    public function pesan()
+    public function pesans()
     {
         return $this->belongsTo(PesanChat::class, 'id_pesan');
     }

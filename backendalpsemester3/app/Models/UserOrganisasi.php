@@ -12,13 +12,18 @@ class UserOrganisasi extends Model
     protected $table = 'user_organisasis';
 
     protected $fillable = [
-        'nama',
-        'email',
-        'password',
-        'alamat',
-        'no_telepon',
+        'id_user',
+        'namaorganisasi',
+        'emailorganisasi',
+        'kotadomisiliorgansiasi',
+        'nomorteleponorganisasi',
+        'katasandiorganisasi',
     ];
 
+    public function users()
+    {
+        return $this->belongsTo(User::class, 'id_user');
+    }
     public function acaras()
     {
         return $this->hasMany(Acara::class, 'id_organisasi');
@@ -27,5 +32,15 @@ class UserOrganisasi extends Model
     public function chats()
     {
         return $this->hasMany(Chat::class, 'id_organisasi');
+    }
+
+    public function penanggungjawaborganisasis()
+    {
+        return $this->hasOne(PenanggungJawabOrganisasi::class, 'id_organisasi');
+    }
+
+    public function rekeningorganisasis()
+    {
+        return $this->hasMany(RekeningOrganisasi::class, 'id_organisasi');
     }
 }

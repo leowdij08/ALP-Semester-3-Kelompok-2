@@ -13,12 +13,14 @@ class PenanggungJawabPerusahaan extends Model
 
     protected $fillable = [
         'id_perusahaan',
-        'nama',
-        'no_telepon',
-        'email',
+        'namalengkappjp',
+        'tanggallahirpjp',
+        'emailpjp',
+        'alamatlengkappjp',
+        'ktppjp',
     ];
 
-    public function perusahaan()
+    public function perusahaans()
     {
         return $this->belongsTo(UserPerusahaan::class, 'id_perusahaan');
     }

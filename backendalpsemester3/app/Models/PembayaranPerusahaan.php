@@ -20,8 +20,13 @@ class PembayaranPerusahaan extends Model
         'buktipembayaran',
     ];
 
-    public function perusahaan()
+    public function rekeningperusahaans()
     {
         return $this->belongsTo(RekeningPerusahaan::class, 'id_rekeningperusahaan');
+    }
+
+    public function acaras()
+    {
+        return $this->belongsTo(Acara::class, 'id_acara');
     }
 }

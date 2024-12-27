@@ -13,11 +13,14 @@ class PesanChat extends Model
 
     protected $fillable = [
         'id_chat',
-        'isi_pesan',
+        'pengirimisperusahaan',
         'waktu_kirim',
+        'dibaca',
+        'waktubaca',
+        'isipesan'
     ];
 
-    public function chat()
+    public function chats()
     {
         return $this->belongsTo(Chat::class, 'id_chat');
     }

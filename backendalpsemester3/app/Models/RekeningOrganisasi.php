@@ -13,12 +13,12 @@ class RekeningOrganisasi extends Model
 
     protected $fillable = [
         'id_organisasi',
-        'nomor_rekening',
-        'bank',
-        'atas_nama',
+        'nomorrekeningorganisasi',
+        'namabankorganisasi',
+        'pemilikrekeningorganisasi',
     ];
 
-    public function organisasi()
+    public function organisasis()
     {
         return $this->belongsTo(UserOrganisasi::class, 'id_organisasi');
     }

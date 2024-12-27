@@ -13,12 +13,14 @@ class PenanggungJawabOrganisasi extends Model
 
     protected $fillable = [
         'id_organisasi',
-        'nama',
-        'no_telepon',
-        'email',
+        'namalengkappjo',
+        'tanggallahirpjo',
+        'emailpjo',
+        'alamatlengkappjo',
+        'ktppjo',
     ];
 
-    public function organisasi()
+    public function organisasis()
     {
         return $this->belongsTo(UserOrganisasi::class, 'id_organisasi');
     }

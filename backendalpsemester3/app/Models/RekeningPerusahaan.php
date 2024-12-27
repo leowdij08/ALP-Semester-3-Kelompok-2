@@ -13,12 +13,12 @@ class RekeningPerusahaan extends Model
 
     protected $fillable = [
         'id_perusahaan',
-        'nomor_rekening',
-        'bank',
-        'atas_nama',
+        'nomorrekeningperusahaan',
+        'namabankperusahaan',
+        'pemilikrekeningperusahaan',
     ];
 
-    public function perusahaan()
+    public function perusahaans()
     {
         return $this->belongsTo(UserPerusahaan::class, 'id_perusahaan');
     }

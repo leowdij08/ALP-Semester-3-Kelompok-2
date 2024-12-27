@@ -23,7 +23,7 @@ class Acara extends Model
         'kotaberlangsung',
     ];
 
-    public function organisasi()
+    public function organisasis()
     {
         return $this->belongsTo(UserOrganisasi::class, 'id_organisasi');
     }

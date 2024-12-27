@@ -17,7 +17,7 @@ class DetailWaktuAcara extends Model
         'waktu_selesai',
     ];
 
-    public function acara()
+    public function acaras()
     {
         return $this->belongsTo(Acara::class, 'id_acara');
     }

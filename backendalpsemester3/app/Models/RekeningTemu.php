@@ -12,10 +12,9 @@ class RekeningTemu extends Model
     protected $table = 'rekening_temus';
 
     protected $fillable = [
-        'id_rekeningtemu',
-        'nomor_rekening',
-        'bank',
-        'atas_nama',
+        'nomorrekeningtemu',
+        'namabanktemu',
+        'pemilikrekeningtemu',
     ];
 
 }
