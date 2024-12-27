@@ -9,25 +9,23 @@ class UserOrganisasi extends Model
 {
     use HasFactory;
 
-    // Define the table associated with the model
-    protected $table = 'user_organisasi';
+    protected $table = 'user_organisasis';
 
-    // Specify the primary key if it is not the default 'id'
-    protected $primaryKey = 'id_organisasi';
-
-    // Define the attributes that are mass assignable
     protected $fillable = [
-        'nama_organisasi',
-        'alamat_organisasi',
-        'telepon_organisasi',
-        'email_organisasi',
+        'nama',
+        'email',
+        'password',
+        'alamat',
+        'no_telepon',
     ];
 
-    // Specify the relationship with the RekeningOrganisasi model
-    public function rekeningOrganisasi()
+    public function acaras()
     {
-        return $this->hasMany(RekeningOrganisasi::class, 'id_organisasi', 'id_organisasi');
+        return $this->hasMany(Acara::class, 'id_organisasi');
     }
 
-    // You can define additional methods or scopes here if needed
+    public function chats()
+    {
+        return $this->hasMany(Chat::class, 'id_organisasi');
+    }
 }
