@@ -12,14 +12,19 @@ class DetailPembayaran extends Model
     protected $table = 'detail_pembayarans'; // Table name based on migration
 
     protected $fillable = [
-        'id_detailpembayaran',
         'id_pembayaran',
-        'jumlah',
-        'tanggal_pembayaran',
+        'id_rekeningtemu',
+        'biayasponsor',
+        'biayalayananaplikasi',
     ];
 
     public function pembayaran()
     {
         return $this->belongsTo(PembayaranPerusahaan::class, 'id_pembayaran');
+    }
+
+    public function RekeningTemu()
+    {
+        return $this->belongsTo(RekeningTemu::class, 'id_rekeningtemu');
     }
 }
