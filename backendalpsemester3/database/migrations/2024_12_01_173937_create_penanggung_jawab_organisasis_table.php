@@ -25,7 +25,7 @@ class CreatePenanggungJawabOrganisasisTable extends Migration
             $table->index('id_organisasi');
             $table->foreign('id_organisasi')->references("id_organisasi")->on("user_organisasi")->onDelete('cascade');
             $table->string('namalengkappjo', 45);
-            $table->string('tanggallahirpjo', 45);
+            $table->date('tanggallahirpjo', 45);
             $table->string('emailpjo', 45);
             $table->string('alamatlengkappjo', 45);
             $table->longtext('ktppjo');
