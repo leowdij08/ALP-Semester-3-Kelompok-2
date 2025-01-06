@@ -18,7 +18,7 @@ class CreatePembayaranPerusahaansTable extends Migration
             $table->longtext('buktipembayaran');
             $table->timestamps();
 
-            $table->foreign('id_acara')->references('id_acara')->on('acara')->onDelete("cascade");
+            $table->foreign('id_acara')->references('id_acara')->on('event_organisasi')->onDelete("cascade");
             $table->foreign('id_rekeningperusahaan')->references('id_rekeningperusahaan')->on('rekening_perusahaan')->onDelete("cascade");
         });
     }

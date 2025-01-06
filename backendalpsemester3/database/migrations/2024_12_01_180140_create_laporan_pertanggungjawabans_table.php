@@ -18,7 +18,7 @@ class CreateLaporanPertanggungjawabansTable extends Migration
             $table->timestamps();
 
             $table->foreign('id_perusahaan')->references('id_perusahaan')->on('user_perusahaan')->onDelete("cascade");
-            $table->foreign('id_acara')->references('id_acara')->on('acara')->onDelete("cascade");
+            $table->foreign('id_acara')->references('id_acara')->on('event_organisasi')->onDelete("cascade");
         });
     }
 
