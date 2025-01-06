@@ -25,7 +25,7 @@ class CreatePenanggungJawabPerusahaansTable extends Migration
             $table->index('id_perusahaan');
             $table->foreign('id_perusahaan')->references("id_perusahaan")->on("user_perusahaan")->onDelete('cascade');
             $table->string('namalengkappjp', 45);
-            $table->date('tanggallahirpjp', 45);
+            $table->date('tanggallahirpjp');
             $table->string('emailpjp', 45);
             $table->string('alamatlengkappjp', 45);
             $table->longtext('ktppjp');
