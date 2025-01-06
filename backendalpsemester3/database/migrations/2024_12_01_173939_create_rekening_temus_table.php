@@ -11,7 +11,7 @@ class CreateRekeningTemusTable extends Migration
     {
         Schema::create('rekening_temu', function (Blueprint $table) {
             $table->id('id_rekeningtemu');
-            $table->integer('nomorrekeningtemu');
+            $table->string('nomorrekeningtemu');
             $table->enum('namabanktemu', ['SEABANK', 'BCA', 'BCA Digital']);
             $table->string('pemilikrekeningtemu', 45);
             $table->timestamps();

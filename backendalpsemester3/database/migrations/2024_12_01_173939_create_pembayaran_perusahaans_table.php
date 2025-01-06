@@ -12,12 +12,13 @@ class CreatePembayaranPerusahaansTable extends Migration
         Schema::create('pembayaran_perusahaan', function (Blueprint $table) {
             $table->id('id_pembayaran');
             $table->unsignedBigInteger('id_rekeningperusahaan');
+            $table->unsignedBigInteger('id_acara');
             $table->integer('biayatotal');
-            $table->date('tanggalpembayaran');
-            $table->time('waktupembayaran');
-            $table->binary('buktipembayaran');
+            $table->datetime('tanggalpembayaran');
+            $table->longtext('buktipembayaran');
             $table->timestamps();
 
+            $table->foreign('id_acara')->references('id_acara')->on('acara')->onDelete("cascade");
             $table->foreign('id_rekeningperusahaan')->references('id_rekeningperusahaan')->on('rekening_perusahaan')->onDelete("cascade");
         });
     }

@@ -10,15 +10,15 @@ class CreateLaporanPertanggungjawabansTable extends Migration
     {
         Schema::create('laporan_pertanggungjawaban', function (Blueprint $table) {
             $table->id('id_laporan');
-            $table->unsignedBigInteger('id_organisasi');
-            $table->unsignedBigInteger('id_transaksi');
-            $table->text('deskripsikegiatan');
-            $table->date('tanggallaporan');
-            $table->binary('filelaporan');
+            $table->unsignedBigInteger('id_perusahaan');
+            $table->unsignedBigInteger('id_acara');
+            $table->longtext('dokumenlpj');
+            $table->boolean('diterima');
+            $table->integer('revisike');
             $table->timestamps();
 
-            $table->foreign('id_organisasi')->references('id_organisasi')->on('user_organisasi')->onDelete("cascade");
-            $table->foreign('id_transaksi')->references('id_transaksi')->on('transaksi')->onDelete("cascade");
+            $table->foreign('id_perusahaan')->references('id_perusahaan')->on('user_perusahaan')->onDelete("cascade");
+            $table->foreign('id_acara')->references('id_acara')->on('acara')->onDelete("cascade");
         });
     }
 

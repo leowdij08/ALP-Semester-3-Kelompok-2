@@ -12,12 +12,13 @@ class CreateDetailPembayaransTable extends Migration
         Schema::create('detail_pembayaran', function (Blueprint $table) {
             $table->id('id_detailpembayaran');
             $table->unsignedBigInteger('id_pembayaran');
-            $table->unsignedBigInteger('id_rekeningorganisasi');
-            $table->integer('nominaldonasi');
+            $table->unsignedBigInteger('id_rekeningtemu');
+            $table->integer('biayasponsor');
+            $table->integer('biayalayananaplikasi');
             $table->timestamps();
 
             $table->foreign('id_pembayaran')->references('id_pembayaran')->on('pembayaran_perusahaan')->onDelete("cascade");
-            $table->foreign('id_rekeningorganisasi')->references('id_rekeningorganisasi')->on('rekening_organisasi')->onDelete("cascade");
+            $table->foreign('id_rekeningtemu')->references('id_rekeningtemu')->on('rekening_temu')->onDelete("cascade");
         });
     }
 

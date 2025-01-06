@@ -11,7 +11,7 @@ class CreateRekeningPerusahaansTable extends Migration
     {
         Schema::create('rekening_perusahaan', function (Blueprint $table) {
             $table->id('id_rekeningperusahaan');
-            $table->integer('nomorrekeningperusahaan');
+            $table->string('nomorrekeningperusahaan');
             $table->enum('namabankperusahaan', ['BCA', 'BCA Digital', 'SEABANK', 'Mandiri', 'BNI', 'DBS']);
             $table->string('pemilikrekeningperusahaan', 45);
             $table->boolean("isActive")->default(true);

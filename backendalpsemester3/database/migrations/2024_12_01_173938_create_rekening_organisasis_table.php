@@ -11,7 +11,7 @@ class CreateRekeningOrganisasisTable extends Migration
     {
         Schema::create('rekening_organisasi', function (Blueprint $table) {
             $table->id('id_rekeningorganisasi');
-            $table->integer('nomorrekeningorganisasi');
+            $table->string('nomorrekeningorganisasi');
             $table->enum('namabankorganisasi', ['BCA', 'BCA DIGITAL', 'Mandiri', 'BNI', 'DBS']);
             $table->string('pemilikrekeningorganisasi', 45);
             $table->boolean("isActive")->default(true);
