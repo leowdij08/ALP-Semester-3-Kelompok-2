@@ -12,6 +12,7 @@ class CreatePenarikanOrganisasisTable extends Migration
         Schema::create('penarikan_organisasi', function (Blueprint $table) {
             $table->id('id_penarikan');
             $table->unsignedBigInteger('id_rekeningorganisasi');
+            $table->index('id_rekeningorganisasi');
             $table->integer('jumlahdanaditarik');
             $table->datetime('tanggalpenarikan');
             $table->longtext('buktipenarikan');

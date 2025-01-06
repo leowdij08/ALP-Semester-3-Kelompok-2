@@ -12,7 +12,9 @@ class CreateDetailPembayaransTable extends Migration
         Schema::create('detail_pembayaran', function (Blueprint $table) {
             $table->id('id_detailpembayaran');
             $table->unsignedBigInteger('id_pembayaran');
+            $table->index('id_pembayaran');
             $table->unsignedBigInteger('id_rekeningtemu');
+            $table->index('id_rekeningtemu');
             $table->integer('biayasponsor');
             $table->integer('biayalayananaplikasi');
             $table->timestamps();

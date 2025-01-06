@@ -11,6 +11,7 @@ class CreateLampiranPesansTable extends Migration
         Schema::create('lampiran_pesan', function (Blueprint $table) {
             $table->unsignedBigInteger('id_pesan');
             $table->index('id_pesan');
+            $table->index('id_pesan');
             $table->enum('tipelampiran', ['Foto', 'Dokumen']);
             $table->string('namafile', 100);
             $table->longtext('urlfile');

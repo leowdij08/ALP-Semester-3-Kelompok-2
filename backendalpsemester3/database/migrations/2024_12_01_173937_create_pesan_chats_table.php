@@ -22,6 +22,7 @@ class CreatePesanChatsTable extends Migration
         Schema::create('pesan_chat', function (Blueprint $table) {
             $table->id('id_pesan');
             $table->unsignedBigInteger('id_chat');
+            $table->index('id_chat');
             $table->boolean('pengirimisperusahaan');
             $table->datetime('waktukirim');
             $table->boolean('dibaca');
