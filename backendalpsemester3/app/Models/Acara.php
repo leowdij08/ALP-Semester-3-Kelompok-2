@@ -11,7 +11,7 @@ class Acara extends Model
 {
     use HasFactory;
 
-    protected $table = 'acaras'; // Table name based on migration
+    protected $table = 'event_organisasi'; // Table name based on migration
 
     protected $fillable = [
         'id_organisasi',

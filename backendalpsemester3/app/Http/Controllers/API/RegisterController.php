@@ -50,39 +50,30 @@ class RegisterController extends BaseController
             $user->level = "organisasi";
             $user->save();
 
-            $dataOrganisasi = [
-                "namaorganisasi" => $input['namaOrganisasi'],
-                "kotadomisiliorganisasi" => $input['kotaDomisiliOrganisasi'],
-                "nomorteleponorganisasi" => $input['nomorTeleponOrganisasi'],
-            ];
-            DB::table('user_organisasi')->insert([
-                ...$dataOrganisasi,
-                "id_user" => $user->id,
-            ]);
-            $idOrganisasi = DB::table('user_organisasi')->where('id_user', $user->id)->value('id_organisasi');
+            $organisasi = new UserOrganisasi;
+            $organisasi->namaorganisasi = $input['namaOrganisasi'];
+            $organisasi->kotadomisiliorganisasi = $input['kotaDomisiliOrganisasi'];
+            $organisasi->nomorteleponorganisasi = $input['nomorTeleponOrganisasi'];
+            $organisasi->id_user = $user->id;
 
-            $dataPenanggungJawab = [
-                "namalengkappjo" => $input['namaLengkapPenanggungJawab'],
-                "tanggallahirpjo" => $input['tanggalLahirPenanggungJawab'],
-                "alamatlengkappjo" => $input['alamatLengkapPenanggungJawab'],
-                "emailpjo" => $input['emailPenanggungJawab'],
-            ];
-            DB::table('penanggung_jawab_organisasi')->insert([
-                ...$dataPenanggungJawab,
-                "id_organisasi" => $idOrganisasi,
-                "ktppjo" => "pathToFile",
-            ]);
+            $penanggungJawab = new PenanggungJawabOrganisasi;
+            $penanggungJawab->namalengkappjo = $input['namaLengkapPenanggungJawab'];
+            $penanggungJawab->tanggallahirpjo = $input['tanggalLahirPenanggungJawab'];
+            $penanggungJawab->alamatlengkappjo = $input['alamatLengkapPenanggungJawab'];
+            $penanggungJawab->emailpjo = $input['emailPenanggungJawab'];
+            $penanggungJawab->id_organisasi = $organisasi->id;
+            $penanggungJawab->ktppjo = "pathToFile";
 
             $success['email'] =  $input['email'];
             $success['level'] =  $user->level;
-            $success['dataOrganisasi'] = $dataOrganisasi;
-            $success['dataPenanggungJawab'] = $dataPenanggungJawab;
+            $success['dataOrganisasi'] = $organisasi;
+            $success['dataPenanggungJawab'] = $penanggungJawab;
 
             return $this->sendResponse($success, 'User Organisasi register successfully.');
         } catch (\Exception $e) {
-            if (isset($idOrganisasi)) {
-                DB::table('penanggung_jawab_organisasi')->where('id_organisasi', $idOrganisasi)->delete();
-                DB::table('user_organisasi')->where('id_organisasi', $idOrganisasi)->delete();
+            if (isset($organisasi)) {
+                PenanggungJawabOrganisasi::where('id_organisasi', $organisasi->id)->delete();
+                UserOrganisasi::where('id_organisasi', $organisasi->id)->delete();
             }
             $user->delete();
             return $this->sendError('Server Error.', $e->getMessage());
@@ -117,39 +108,30 @@ class RegisterController extends BaseController
             $user->level = "perusahaan";
             $user->save();
 
-            $dataPerusahaan = [
-                "namaperusahaan" => $input['namaPerusahaan'],
-                "kotadomisiliperusahaan" => $input['kotaDomisiliPerusahaan'],
-                "nomorteleponperusahaan" => $input['nomorTeleponPerusahaan'],
-            ];
-            DB::table('user_perusahaan')->insert([
-                ...$dataPerusahaan,
-                "id_user" => $user->id,
-            ]);
-            $idPerusahaan = DB::table('user_perusahaan')->where('id_user', $user->id)->value('id_perusahaan');
+            $perusahaan = new UserPerusahaan;
+            $perusahaan->namaperusahaan = $input['namaPerusahaan'];
+            $perusahaan->kotadomisiliperusahaan = $input['kotaDomisiliPerusahaan'];
+            $perusahaan->nomorteleponperusahaan = $input['nomorTeleponPerusahaan'];
+            $perusahaan->id_user = $user->id;
 
-            $dataPenanggungJawab = [
-                "namalengkappjp" => $input['namaLengkapPenanggungJawab'],
-                "tanggallahirpjp" => $input['tanggalLahirPenanggungJawab'],
-                "alamatlengkappjp" => $input['alamatLengkapPenanggungJawab'],
-                "emailpjp" => $input['emailPenanggungJawab'],
-            ];
-            DB::table('penanggung_jawab_perusahaan')->insert([
-                ...$dataPenanggungJawab,
-                "id_perusahaan" => $idPerusahaan,
-                "ktppjp" => "pathToFile",
-            ]);
+            $penanggungJawab = new PenanggungJawabPerusahaan;
+            $penanggungJawab->namalengkappjp = $input['namaLengkapPenanggungJawab'];
+            $penanggungJawab->tanggallahirpjp = $input['tanggalLahirPenanggungJawab'];
+            $penanggungJawab->alamatlengkappjp = $input['alamatLengkapPenanggungJawab'];
+            $penanggungJawab->emailpjp = $input['emailPenanggungJawab'];
+            $penanggungJawab->id_perusahaan = $perusahaan->id;
+            $penanggungJawab->ktppjp = "pathToFile";
 
             $success['email'] =  $input['email'];
             $success['level'] =  $user->level;
-            $success['dataPerusahaan'] = $dataPerusahaan;
-            $success['dataPenanggungJawab'] = $dataPenanggungJawab;
+            $success['dataPerusahaan'] = $perusahaan;
+            $success['dataPenanggungJawab'] = $penanggungJawab;
 
             return $this->sendResponse($success, 'User Perusahaan register successfully.');
         } catch (\Exception $e) {
-            if (isset($idPerusahaan)) {
-                DB::table('penanggung_jawab_perusahaan')->where('id_perusahaan', $idPerusahaan)->delete();
-                DB::table('user_perusahaan')->where('id_perusahaan', $idPerusahaan)->delete();
+            if (isset($perusahaan)) {
+                DB::table('penanggung_jawab_perusahaan')->where('id_perusahaan', $perusahaan->id)->delete();
+                DB::table('user_perusahaan')->where('id_perusahaan', $perusahaan->id)->delete();
             }
             $user->delete();
             return $this->sendError('Server Error.', $e->getMessage());
@@ -178,7 +160,10 @@ class RegisterController extends BaseController
     {
         if (Auth::id()) {
             $user = Auth::user();
-            $userData = DB::select('select * from user_' . $user->level . ' where id_user = "' . $user->id . '" limit 1')[0];
+            $userData = User::where('level', $user->level)
+            ->where('id_user', $user->id)
+            ->first();
+
             switch ($user->level) {
                 case "perusahaan":
                     $datas = [
