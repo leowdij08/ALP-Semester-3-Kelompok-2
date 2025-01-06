@@ -14,10 +14,8 @@ class UserOrganisasi extends Model
     protected $fillable = [
         'id_user',
         'namaorganisasi',
-        'emailorganisasi',
         'kotadomisiliorgansiasi',
         'nomorteleponorganisasi',
-        'katasandiorganisasi',
     ];
 
     public function users()
