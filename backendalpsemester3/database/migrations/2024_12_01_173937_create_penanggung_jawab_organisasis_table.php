@@ -14,7 +14,6 @@ class CreatePenanggungJawabOrganisasisTable extends Migration
             $table->enum('kotadomisiliorganisasi', ['Makassar', 'Jakarta', 'Surabaya']);
             $table->string('nomorteleponorganisasi');
             $table->unsignedBigInteger('id_user');
-            $table->index('id_user');
             $table->foreign('id_user')->references("id")->on("users")->onDelete('cascade');
             $table->timestamps();
         });
@@ -22,7 +21,6 @@ class CreatePenanggungJawabOrganisasisTable extends Migration
         Schema::create('penanggung_jawab_organisasi', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_organisasi');
-            $table->index('id_organisasi');
             $table->foreign('id_organisasi')->references("id_organisasi")->on("user_organisasi")->onDelete('cascade');
             $table->string('namalengkappjo', 45);
             $table->date('tanggallahirpjo');

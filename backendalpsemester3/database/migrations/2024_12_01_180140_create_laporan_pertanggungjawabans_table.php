@@ -11,9 +11,7 @@ class CreateLaporanPertanggungjawabansTable extends Migration
         Schema::create('laporan_pertanggungjawaban', function (Blueprint $table) {
             $table->id('id_laporan');
             $table->unsignedBigInteger('id_perusahaan');
-            $table->index('id_perusahaan');
             $table->unsignedBigInteger('id_acara');
-            $table->index('id_acara');
             $table->longtext('dokumenlpj');
             $table->boolean('diterima');
             $table->integer('revisike');

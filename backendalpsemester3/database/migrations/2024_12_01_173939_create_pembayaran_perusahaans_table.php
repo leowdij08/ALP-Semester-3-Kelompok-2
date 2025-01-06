@@ -12,9 +12,7 @@ class CreatePembayaranPerusahaansTable extends Migration
         Schema::create('pembayaran_perusahaan', function (Blueprint $table) {
             $table->id('id_pembayaran');
             $table->unsignedBigInteger('id_rekeningperusahaan');
-            $table->index('id_rekeningperusahaan');
             $table->unsignedBigInteger('id_acara');
-            $table->index('id_acara');
             $table->integer('biayatotal');
             $table->datetime('tanggalpembayaran');
             $table->longtext('buktipembayaran');

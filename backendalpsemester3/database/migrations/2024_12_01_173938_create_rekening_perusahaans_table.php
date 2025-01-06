@@ -16,7 +16,6 @@ class CreateRekeningPerusahaansTable extends Migration
             $table->string('pemilikrekeningperusahaan', 45);
             $table->boolean("isActive")->default(true);
             $table->unsignedBigInteger('id_perusahaan');
-            $table->index('id_perusahaan');
             $table->foreign('id_perusahaan')->references("id_perusahaan")->on("user_perusahaan")->onDelete('cascade');
             $table->timestamps();
         });

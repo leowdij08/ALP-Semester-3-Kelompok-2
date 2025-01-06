@@ -16,7 +16,6 @@ class CreateRekeningOrganisasisTable extends Migration
             $table->string('pemilikrekeningorganisasi', 45);
             $table->boolean("isActive")->default(true);
             $table->unsignedBigInteger('id_organisasi');
-            $table->index('id_organisasi');
             $table->foreign('id_organisasi')->references("id_organisasi")->on("user_organisasi")->onDelete('cascade');
             $table->timestamps();
         });

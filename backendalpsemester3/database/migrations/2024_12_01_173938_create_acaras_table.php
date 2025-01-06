@@ -11,7 +11,6 @@ class CreateAcarasTable extends Migration
         Schema::create('event_organisasi', function (Blueprint $table) {
             $table->id('id_acara');
             $table->unsignedBigInteger('id_organisasi');
-            $table->index('id_organisasi');
             $table->string('namaacara', 100);
             $table->date('tanggalacara');
             $table->string('lokasiacara', 100);
@@ -26,7 +25,6 @@ class CreateAcarasTable extends Migration
         Schema::create('detail_waktu_acara', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_acara');
-            $table->index('id_acara');
             $table->foreign('id_acara')->references("id_acara")->on("event_organisasi")->onDelete('cascade');
             $table->time('waktumulai');
             $table->time('waktuselesai');
