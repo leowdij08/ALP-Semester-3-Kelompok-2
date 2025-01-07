@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends BaseController
 {
+    public function error_login(): JsonResponse
+    {
+        return $this->sendError('Bad Request.', "Please Login First");
+    }
     /**
      * Register api
      *
@@ -145,47 +149,55 @@ class RegisterController extends BaseController
      */
     public function login(Request $request): JsonResponse
     {
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            $user = Auth::user();
-            $success['token'] =  $user->createToken('MyApp')->plainTextToken;
-            $success['level'] =  $user->level;
+        try {
+            if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+                $user = Auth::user();
+                $success['token'] =  $user->createToken('auth-token')->plainTextToken;
+                $success['level'] =  $user->level;
 
-            return $this->sendResponse($success, 'User login successfully.');
-        } else {
-            return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
+                return $this->sendResponse($success, 'User login successfully.');
+            } else {
+                return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage());
         }
     }
 
     public function userData(Request $request): JsonResponse
     {
-        if (Auth::id()) {
-            $user = Auth::user();
-            $userData = User::where('level', $user->level)
-            ->where('id_user', $user->id)
-            ->first();
+        try {
+            if (Auth::id()) {
+                $user = Auth::user();
+                $userData = User::where('level', $user->level)
+                    ->where('id_user', $user->id)
+                    ->first();
 
-            switch ($user->level) {
-                case "perusahaan":
-                    $datas = [
-                        "namaPerusahaan" => $userData->namaperusahaan,
-                        "kotaDomisiliPerusahaan" => $userData->kotadomisiliperusahaan,
-                        "nomorTeleponPerusahaan" => $userData->nomorteleponperusahaan,
-                    ];
-                    break;
-                case "organisasi":
-                    $datas = [
-                        "namaOrganisasi" => $userData->namaorganisasi,
-                        "kotaDomisiliOrganisasi" => $userData->kotadomisiliorganisasi,
-                        "nomorTeleponOrganisasi" => $userData->nomorteleponorganisasi,
-                    ];
-                    break;
+                switch ($user->level) {
+                    case "perusahaan":
+                        $datas = [
+                            "namaPerusahaan" => $userData->namaperusahaan,
+                            "kotaDomisiliPerusahaan" => $userData->kotadomisiliperusahaan,
+                            "nomorTeleponPerusahaan" => $userData->nomorteleponperusahaan,
+                        ];
+                        break;
+                    case "organisasi":
+                        $datas = [
+                            "namaOrganisasi" => $userData->namaorganisasi,
+                            "kotaDomisiliOrganisasi" => $userData->kotadomisiliorganisasi,
+                            "nomorTeleponOrganisasi" => $userData->nomorteleponorganisasi,
+                        ];
+                        break;
+                }
+                $success['level'] = $user->level;
+                $success['user'] = $datas;
+
+                return $this->sendResponse($success, 'User data retrieved successfully.');
+            } else {
+                return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
             }
-            $success['level'] = $user->level;
-            $success['user'] = $datas;
-
-            return $this->sendResponse($success, 'User data retrieved successfully.');
-        } else {
-            return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage());
         }
     }
 }
