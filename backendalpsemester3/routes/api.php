@@ -24,4 +24,5 @@ Route::middleware('auth:sanctum')->group( function () {
 
 Route::controller(UserPerusahaanController::class)->prefix("perusahaan")->group(function(){
     Route::get('/{id}', "getbyID");
+    Route::get('/search/{keyword}', "search");
 });
