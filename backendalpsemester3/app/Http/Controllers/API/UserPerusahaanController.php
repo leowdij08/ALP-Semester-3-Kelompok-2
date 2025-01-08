@@ -20,15 +20,15 @@ class UserPerusahaanController extends BaseController
     public function getbyID($id, Request $request ): JsonResponse
     {
         try {
-            if (Auth::id()) {
+            if (true) {
                 $userData = UserPerusahaan::
                     where('id_perusahaan',$id)
-                    ->first()->map(
+                    ->get()->map(
                         function ($item) {
                             return [
                                 'id_user' => $item->id_perusahaan,
                                 'namaperusahaan' => $item->namaperusahaan,
-                                'kotadomisiliperusahaan' => $item->alamat_perusahaan,
+                                'kotadomisiliperusahaan' => $item->kotadomisiliperusahaan,
                                 'nomorteleponperusahaan' => $item->nomorteleponperusahaan,
                             ];
                         }
