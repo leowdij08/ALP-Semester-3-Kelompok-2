@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\RegisterController;
 use App\Http\Controllers\API\AcaraController;
 use App\Http\Controllers\API\UserPerusahaanController;
+use App\Http\Controllers\API\UserOrganisasiController;
 
 Route::controller(RegisterController::class)->group(function(){
     Route::post('register_organisasi', 'register_organisasi');
