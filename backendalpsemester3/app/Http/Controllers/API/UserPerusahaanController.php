@@ -20,7 +20,7 @@ class UserPerusahaanController extends BaseController
     public function getbyID($id, Request $request ): JsonResponse
     {
         try {
-            if (true) {
+            if (Auth::id()) {
                 $userData = UserPerusahaan::
                     where('id_perusahaan',$id)
                     ->get()->map(
@@ -43,4 +43,29 @@ class UserPerusahaanController extends BaseController
             return $this->sendError('Server Error.', $e->getMessage());
         }
     }
+
+    public function search(Request $request, $keyword): JsonResponse
+    {
+        try {
+            if (Auth::id()) {
+                $filters = $request->all();
+                $dataUser = UserPerusahaan::whereRaw("concat(namaperusahaan, kotadomisiliperusahaan) like ?", ["%$keyword%"])
+                ->get()->map(function ($item) {
+                    return [
+                        'id_user' => $item->id_perusahaan,
+                        'namaperusahaan' => $item->namaperusahaan,
+                        'kotadomisiliperusahaan' => $item->kotadomisiliperusahaan,
+                        'nomorteleponperusahaan' => $item->nomorteleponperusahaan,
+                    ];
+                });
+
+                return $this->sendResponse($dataUser, 'Events searched successfully.');
+            } else {
+                return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage());
+        }
+}
+
 }
