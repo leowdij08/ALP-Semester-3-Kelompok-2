@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserPerusahaanController extends BaseController
 {
-    public function getbyID($id, Request $request ): JsonResponse
+    public function getbyID($id): JsonResponse
     {
         try {
             if (Auth::id()) {
@@ -34,21 +34,20 @@ class UserPerusahaanController extends BaseController
                         }
                     );
 
-            
+
                 return $this->sendResponse($userData, 'User data retrieved successfully.');
             } else {
-                return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
+                return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
             }
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.', $e->getMessage());
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
     }
 
-    public function search(Request $request, $keyword): JsonResponse
+    public function search($keyword): JsonResponse
     {
         try {
             if (Auth::id()) {
-                $filters = $request->all();
                 $dataUser = UserPerusahaan::whereRaw("concat(namaperusahaan, kotadomisiliperusahaan) like ?", ["%$keyword%"])
                 ->get()->map(function ($item) {
                     return [
@@ -61,10 +60,10 @@ class UserPerusahaanController extends BaseController
 
                 return $this->sendResponse($dataUser, 'Events searched successfully.');
             } else {
-                return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
+                return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
             }
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.', $e->getMessage());
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
 }
 

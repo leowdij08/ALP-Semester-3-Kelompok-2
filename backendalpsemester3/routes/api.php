@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\API\RegisterController;
@@ -16,8 +15,10 @@ Route::controller(RegisterController::class)->group(function(){
 
 Route::controller(AcaraController::class)->prefix("acara")->group(function(){
     Route::get('getAll', "getAll");
+    Route::get('{idAcara}', "getById");
     Route::get('search/{keyword}', "search");
     Route::post('filter', "filter");
+    Route::put('{idAcara}', "update");
 });
 
 Route::middleware('auth:sanctum')->group( function () {
@@ -25,6 +26,6 @@ Route::middleware('auth:sanctum')->group( function () {
 });
 
 Route::controller(UserPerusahaanController::class)->prefix("perusahaan")->group(function(){
-    Route::get('/{id}', "getbyID");
-    Route::get('/search/{keyword}', "search");
+    Route::get('{id}', "getbyID");
+    Route::get('search/{keyword}', "search");
 });

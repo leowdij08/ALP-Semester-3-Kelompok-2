@@ -19,7 +19,7 @@ class RegisterController extends BaseController
 {
     public function error_login(): JsonResponse
     {
-        return $this->sendError('Bad Request.', "Please Login First");
+        return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
     }
     /**
      * Register api
@@ -33,7 +33,7 @@ class RegisterController extends BaseController
                 'namaOrganisasi' => 'required',
                 'email' => 'required|email',
                 'password' => 'required',
-                'kotaDomisiliOrganisasi' => 'in:Makassar,Jakarta,Surabaya',
+                'kotaDomisiliOrganisasi' => 'required|in:Makassar,Jakarta,Surabaya',
                 'nomorTeleponOrganisasi' => 'required|regex:/[0-9]/',
                 'namaLengkapPenanggungJawab' => 'required',
                 'tanggalLahirPenanggungJawab' => 'required|date|date_format:Y-m-d|before:today',
@@ -42,45 +42,52 @@ class RegisterController extends BaseController
             ]);
 
             if ($validator->fails()) {
-                return $this->sendError('Validation Error.', $validator->errors());
+                return $this->sendError('Validation Error.', $validator->errors(), 400);
             }
 
             $input = $request->all();
-            $input['password'] = Hash::make($input['password']);
+            if (count(UserOrganisasi::where("namaorganisasi", $input['namaOrganisasi'])->get()) == 0
+            && count(User::where("level", "organisasi")->where("email", $input['email'])->get()) == 0) {
+                $input['password'] = Hash::make($input['password']);
 
-            $user = new User;
-            $user->email = $input['email'];
-            $user->password = $input['password'];
-            $user->level = "organisasi";
-            $user->save();
+                $user = new User;
+                $user->email = $input['email'];
+                $user->password = $input['password'];
+                $user->level = "organisasi";
+                $user->save();
 
-            $organisasi = new UserOrganisasi;
-            $organisasi->namaorganisasi = $input['namaOrganisasi'];
-            $organisasi->kotadomisiliorganisasi = $input['kotaDomisiliOrganisasi'];
-            $organisasi->nomorteleponorganisasi = $input['nomorTeleponOrganisasi'];
-            $organisasi->id_user = $user->id;
+                $organisasi = new UserOrganisasi;
+                $organisasi->namaorganisasi = $input['namaOrganisasi'];
+                $organisasi->kotadomisiliorganisasi = $input['kotaDomisiliOrganisasi'];
+                $organisasi->nomorteleponorganisasi = $input['nomorTeleponOrganisasi'];
+                $organisasi->id_user = $user->id;
+                $organisasi->save();
 
-            $penanggungJawab = new PenanggungJawabOrganisasi;
-            $penanggungJawab->namalengkappjo = $input['namaLengkapPenanggungJawab'];
-            $penanggungJawab->tanggallahirpjo = $input['tanggalLahirPenanggungJawab'];
-            $penanggungJawab->alamatlengkappjo = $input['alamatLengkapPenanggungJawab'];
-            $penanggungJawab->emailpjo = $input['emailPenanggungJawab'];
-            $penanggungJawab->id_organisasi = $organisasi->id;
-            $penanggungJawab->ktppjo = "pathToFile";
+                $penanggungJawab = new PenanggungJawabOrganisasi;
+                $penanggungJawab->namalengkappjo = $input['namaLengkapPenanggungJawab'];
+                $penanggungJawab->tanggallahirpjo = $input['tanggalLahirPenanggungJawab'];
+                $penanggungJawab->alamatlengkappjo = $input['alamatLengkapPenanggungJawab'];
+                $penanggungJawab->emailpjo = $input['emailPenanggungJawab'];
+                $penanggungJawab->id_organisasi = $organisasi->id;
+                $penanggungJawab->ktppjo = "pathToFile";
+                $penanggungJawab->save();
 
-            $success['email'] =  $input['email'];
-            $success['level'] =  $user->level;
-            $success['dataOrganisasi'] = $organisasi;
-            $success['dataPenanggungJawab'] = $penanggungJawab;
+                $success['email'] =  $input['email'];
+                $success['level'] =  $user->level;
+                $success['dataOrganisasi'] = $organisasi;
+                $success['dataPenanggungJawab'] = $penanggungJawab;
 
-            return $this->sendResponse($success, 'User Organisasi register successfully.');
+                return $this->sendResponse($success, 'Organisation registered successfully.');
+            } else {
+                return $this->sendError('Name Taken.', ['error' => "Name or email has been taken"], 400);
+            }
         } catch (\Exception $e) {
             if (isset($organisasi)) {
                 PenanggungJawabOrganisasi::where('id_organisasi', $organisasi->id)->delete();
                 UserOrganisasi::where('id_organisasi', $organisasi->id)->delete();
             }
-            $user->delete();
-            return $this->sendError('Server Error.', $e->getMessage());
+            if (isset($user)) $user->delete();
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
     }
 
@@ -91,7 +98,7 @@ class RegisterController extends BaseController
                 'namaPerusahaan' => 'required',
                 'email' => 'required|email',
                 'password' => 'required',
-                'kotaDomisiliPerusahaan' => 'in:Makassar,Jakarta,Surabaya',
+                'kotaDomisiliPerusahaan' => 'required|in:Makassar,Jakarta,Surabaya',
                 'nomorTeleponPerusahaan' => 'required|regex:/[0-9]/',
                 'namaLengkapPenanggungJawab' => 'required',
                 'tanggalLahirPenanggungJawab' => 'required|date|date_format:Y-m-d|before:today',
@@ -100,45 +107,52 @@ class RegisterController extends BaseController
             ]);
 
             if ($validator->fails()) {
-                return $this->sendError('Validation Error.', $validator->errors());
+                return $this->sendError('Validation Error.', $validator->errors(), 400);
             }
 
             $input = $request->all();
-            $input['password'] = Hash::make($input['password']);
+            if (count(UserPerusahaan::where("namaperusahaan", $input['namaPerusahaan'])->get()) == 0
+            && count(User::where("level", "perusahaan")->where("email", $input['email'])->get()) == 0) {
+                $input['password'] = Hash::make($input['password']);
 
-            $user = new User;
-            $user->email = $input['email'];
-            $user->password = $input['password'];
-            $user->level = "perusahaan";
-            $user->save();
+                $user = new User;
+                $user->email = $input['email'];
+                $user->password = $input['password'];
+                $user->level = "perusahaan";
+                $user->save();
 
-            $perusahaan = new UserPerusahaan;
-            $perusahaan->namaperusahaan = $input['namaPerusahaan'];
-            $perusahaan->kotadomisiliperusahaan = $input['kotaDomisiliPerusahaan'];
-            $perusahaan->nomorteleponperusahaan = $input['nomorTeleponPerusahaan'];
-            $perusahaan->id_user = $user->id;
+                $perusahaan = new UserPerusahaan;
+                $perusahaan->namaperusahaan = $input['namaPerusahaan'];
+                $perusahaan->kotadomisiliperusahaan = $input['kotaDomisiliPerusahaan'];
+                $perusahaan->nomorteleponperusahaan = $input['nomorTeleponPerusahaan'];
+                $perusahaan->id_user = $user->id;
+                $perusahaan->save();
 
-            $penanggungJawab = new PenanggungJawabPerusahaan;
-            $penanggungJawab->namalengkappjp = $input['namaLengkapPenanggungJawab'];
-            $penanggungJawab->tanggallahirpjp = $input['tanggalLahirPenanggungJawab'];
-            $penanggungJawab->alamatlengkappjp = $input['alamatLengkapPenanggungJawab'];
-            $penanggungJawab->emailpjp = $input['emailPenanggungJawab'];
-            $penanggungJawab->id_perusahaan = $perusahaan->id;
-            $penanggungJawab->ktppjp = "pathToFile";
+                $penanggungJawab = new PenanggungJawabPerusahaan;
+                $penanggungJawab->namalengkappjp = $input['namaLengkapPenanggungJawab'];
+                $penanggungJawab->tanggallahirpjp = $input['tanggalLahirPenanggungJawab'];
+                $penanggungJawab->alamatlengkappjp = $input['alamatLengkapPenanggungJawab'];
+                $penanggungJawab->emailpjp = $input['emailPenanggungJawab'];
+                $penanggungJawab->id_perusahaan = $perusahaan->id;
+                $penanggungJawab->ktppjp = "pathToFile";
+                $penanggungJawab->save();
 
-            $success['email'] =  $input['email'];
-            $success['level'] =  $user->level;
-            $success['dataPerusahaan'] = $perusahaan;
-            $success['dataPenanggungJawab'] = $penanggungJawab;
+                $success['email'] =  $input['email'];
+                $success['level'] =  $user->level;
+                $success['dataPerusahaan'] = $perusahaan;
+                $success['dataPenanggungJawab'] = $penanggungJawab;
 
-            return $this->sendResponse($success, 'User Perusahaan register successfully.');
+                return $this->sendResponse($success, 'User Perusahaan register successfully.');
+            } else {
+                return $this->sendError('Name Taken.', ['error' => "Name or email has been taken"], 400);
+            }
         } catch (\Exception $e) {
             if (isset($perusahaan)) {
                 DB::table('penanggung_jawab_perusahaan')->where('id_perusahaan', $perusahaan->id)->delete();
                 DB::table('user_perusahaan')->where('id_perusahaan', $perusahaan->id)->delete();
             }
-            $user->delete();
-            return $this->sendError('Server Error.', $e->getMessage());
+            if (isset($user)) $user->delete();
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
     }
 
@@ -157,14 +171,14 @@ class RegisterController extends BaseController
 
                 return $this->sendResponse($success, 'User login successfully.');
             } else {
-                return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
+                return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
             }
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.', $e->getMessage());
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
     }
 
-    public function userData(Request $request): JsonResponse
+    public function userData(): JsonResponse
     {
         try {
             if (Auth::id()) {
@@ -194,10 +208,10 @@ class RegisterController extends BaseController
 
                 return $this->sendResponse($success, 'User data retrieved successfully.');
             } else {
-                return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
+                return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
             }
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.', $e->getMessage());
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
     }
 }
