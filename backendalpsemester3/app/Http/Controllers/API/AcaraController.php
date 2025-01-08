@@ -127,10 +127,9 @@ class AcaraController extends BaseController
     public function update($idAcara, Request $request): JsonResponse
     {
         try {
-            if (true) {
+            if (Auth::id()) {
                 if (Acara::where("id_acara", $idAcara)->count() > 0) {
-                    // if (Acara::where("id_acara", $idAcara)->first()->id_organisasi == Auth::user()->id) {
-                    if (true) {
+                    if (Acara::where("id_acara", $idAcara)->first()->id_organisasi == Auth::user()->id) {
                         $validator = Validator::make($request->all(), [
                             'namaAcara' => 'required',
                             'tanggalAcara' => 'required|date|date_format:Y-m-d',
