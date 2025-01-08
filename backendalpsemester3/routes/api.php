@@ -28,3 +28,8 @@ Route::controller(UserPerusahaanController::class)->prefix("perusahaan")->group(
     Route::get('/{id}', "getbyID");
     Route::get('/search/{keyword}', "search");
 });
+
+Route::controller(UserOrganisasiController::class)->prefix("organisasi")->group(function(){
+    Route::get('/{id}', "getbyID");
+    Route::get('/search/{keyword}', "search");
+});
