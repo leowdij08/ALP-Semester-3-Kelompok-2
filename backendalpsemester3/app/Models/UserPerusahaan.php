@@ -9,7 +9,7 @@ class UserPerusahaan extends Model
 {
     use HasFactory;
 
-    protected $table = 'user_perusahaans';
+    protected $table = 'user_perusahaan';
 
     protected $fillable = [
         'namaperusahaan',
