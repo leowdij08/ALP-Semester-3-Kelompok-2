@@ -25,6 +25,6 @@ class Acara extends Model
 
     public function organisasis()
     {
-        return $this->belongsTo(UserOrganisasi::class, 'id_organisasi');
+        return $this->belongsTo(UserOrganisasi::class, 'id_organisasi', 'id_organisasi');
     }
 }

@@ -9,7 +9,7 @@ class UserOrganisasi extends Model
 {
     use HasFactory;
 
-    protected $table = 'user_organisasis';
+    protected $table = 'user_organisasi';
 
     protected $fillable = [
         'id_user',
@@ -24,7 +24,7 @@ class UserOrganisasi extends Model
     }
     public function acaras()
     {
-        return $this->hasMany(Acara::class, 'id_organisasi');
+        return $this->hasMany(Acara::class, 'id_organisasi', 'id_organisasi');
     }
 
     public function chats()

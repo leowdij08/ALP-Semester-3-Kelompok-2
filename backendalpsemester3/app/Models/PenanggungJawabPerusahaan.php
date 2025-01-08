@@ -9,7 +9,7 @@ class PenanggungJawabPerusahaan extends Model
 {
     use HasFactory;
 
-    protected $table = 'penanggung_jawab_perusahaans';
+    protected $table = 'penanggung_jawab_perusahaan';
 
     protected $fillable = [
         'id_perusahaan',
