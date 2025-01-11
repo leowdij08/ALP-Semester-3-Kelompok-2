@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\RegisterController;
 use App\Http\Controllers\API\AcaraController;
 use App\Http\Controllers\API\UserPerusahaanController;
+use App\Http\Controllers\API\UserOrganisasiController;
 
 Route::controller(RegisterController::class)->group(function(){
     Route::post('register_organisasi', 'register_organisasi');
@@ -28,4 +29,9 @@ Route::middleware('auth:sanctum')->group( function () {
 Route::controller(UserPerusahaanController::class)->prefix("perusahaan")->group(function(){
     Route::get('{id}', "getbyID");
     Route::get('search/{keyword}', "search");
+});
+
+Route::controller(UserOrganisasiController::class)->prefix("organisasi")->group(function(){
+    Route::get('/{id}', "getbyID");
+    Route::get('/search/{keyword}', "search");
 });
