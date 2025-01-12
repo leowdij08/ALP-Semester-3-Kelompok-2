@@ -33,7 +33,7 @@ class PenanggungJawabOrganisasiController extends BaseController
                     );
 
             
-                return $this->sendResponse($userData, 'User data retrieved successfully.');
+                return $this->sendResponse($userData, 'PenanggungJawabOrganisasi data retrieved successfully.');
             } else {
                 return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
             }
@@ -59,7 +59,7 @@ class PenanggungJawabOrganisasiController extends BaseController
                     ];
                 });
 
-                return $this->sendResponse($dataUser, 'Events searched successfully.');
+                return $this->sendResponse($dataUser, 'PenanggungJawabOrganisasi searched successfully.');
             } else {
                 return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
             }
