@@ -19,7 +19,7 @@ class LaporanPertanggungjawabanController extends BaseController
         try {
             if (Auth::id()) {
                 $userData = LaporanPertanggungjawaban::
-                    where('id_perusahaan',$id)
+                    where('id_laporan',$id)
                     ->get()->map(
                         function ($item) {
                             return [
@@ -46,7 +46,7 @@ class LaporanPertanggungjawabanController extends BaseController
     {
         try {
             if (Auth::id()) {
-                $dataUser = LaporanPertanggungjawaban::whereRaw("concat(namaperusahaan, kotadomisiliperusahaan) like ?", ["%$keyword%"])
+                $dataUser = LaporanPertanggungjawaban::whereRaw("concat(id_acara, revisike) like ?", ["%$keyword%"])
                 ->get()->map(function ($item) {
                     return [
                         'id_user' => $item->id_perusahaan,
