@@ -54,6 +54,8 @@ Route::controller(UserOrganisasiController::class)->prefix("organisasi")->group(
 Route::controller(LaporanPertanggungJawabanController::class)->prefix("laporan")->group(function(){
     Route::get('{id}', "getbyID");
     Route::get('search/{keyword}', "search");
+    Route::put('{idAcara}', "update");
+    Route::delete('{idAcara}', "delete");
 });
 
 Route::controller(PenanggungJawabOrganisasiController::class)->prefix("penanggungjawaborganisasi")->group(function(){

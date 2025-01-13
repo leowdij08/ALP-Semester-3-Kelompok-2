@@ -24,11 +24,6 @@ class UserPerusahaan extends Model
         return $this->hasMany(Chat::class, 'id_perusahaan');
     }
 
-    public function laporanpertanggungjawabans()
-    {
-        return $this->hasMany(LaporanPertanggungjawaban::class, 'id_perusahaan');
-    }
-
     public function rekeningperusahaans()
     {
         return $this->hasMany(RekeningPerusahaan::class, 'id_perusahaan');
