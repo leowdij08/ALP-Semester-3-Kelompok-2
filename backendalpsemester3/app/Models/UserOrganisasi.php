@@ -32,7 +32,7 @@ class UserOrganisasi extends Model
         return $this->hasMany(Chat::class, 'id_organisasi');
     }
 
-    public function penanggungjawaborganisasis()
+    public function penanggungjawab()
     {
         return $this->hasOne(PenanggungJawabOrganisasi::class, 'id_organisasi');
     }

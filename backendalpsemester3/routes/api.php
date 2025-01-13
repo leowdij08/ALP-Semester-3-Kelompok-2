@@ -59,9 +59,11 @@ Route::controller(LaporanPertanggungJawabanController::class)->prefix("laporan")
 Route::controller(PenanggungJawabOrganisasiController::class)->prefix("penanggungjawaborganisasi")->group(function(){
     Route::get('{id}', "getbyID");
     Route::get('search/{keyword}', "search");
+    Route::put('', "update");
 });
 
 Route::controller(PenanggungJawabPerusahaanController::class)->prefix("penanggungjawabperusahaan")->group(function(){
     Route::get('{id}', "getbyID");
     Route::get('search/{keyword}', "search");
+    Route::put('', "update");
 });
