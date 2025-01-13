@@ -56,6 +56,7 @@ Route::controller(LaporanPertanggungJawabanController::class)->prefix("laporan")
     Route::get('search/{keyword}', "search");
     Route::put('{idAcara}', "update");
     Route::delete('{idAcara}', "delete");
+    Route::post('{idAcara}', "create");
 });
 
 Route::controller(PenanggungJawabOrganisasiController::class)->prefix("penanggungjawaborganisasi")->group(function(){
