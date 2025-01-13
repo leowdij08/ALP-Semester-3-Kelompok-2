@@ -68,7 +68,7 @@ class UserOrganisasiController extends BaseController
                 $userOrganisasi = UserOrganisasi::where('id_user', Auth::user()->id)->first();
                 $validator = Validator::make($request->all(), [
                     'namaorganisasi' => 'required',
-                    'kotadomisiliorgansiasi' => 'required|in:Makassar,Jakarta,Surabaya',
+                    'kotadomisiliorganisasi' => 'required|in:Makassar,Jakarta,Surabaya',
                     'nomorteleponorganisasi' => 'required|regex:/[0-9]/',
                 ]);
 
@@ -79,7 +79,7 @@ class UserOrganisasiController extends BaseController
                 $input = $request->all();
                 $data = [
                     "namaorganisasi" => $input['namaorganisasi'],
-                    "kotadomisiliorgansiasi" => $input['kotadomisiliorgansiasi'],
+                    "kotadomisiliorganisasi" => $input['kotadomisiliorganisasi'],
                     "nomorteleponorganisasi" => $input['nomorteleponorganisasi'],
                 ];
                 $userOrganisasi->update($data);
