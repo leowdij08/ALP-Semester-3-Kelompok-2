@@ -189,6 +189,63 @@ class AcaraController extends BaseController
         }
     }
 
+    public function create(Request $request): JsonResponse
+    {
+        try {
+            if (Auth::id()) {
+                $validator = Validator::make($request->all(), [
+                    'namaAcara' => 'required',
+                    'tanggalAcara' => 'required|date|date_format:Y-m-d',
+                    'lokasiAcara' => 'required',
+                    'biayaDibutuhkan' => 'required|regex:/[0-9]/',
+                    'kotaBerlangsung' => 'required|in:Makassar,Jakarta,Surabaya',
+                    'kegiatanAcara' => 'required|in:Gunung,Pantai,Hutan',
+                ]);
+
+                if ($validator->fails()) {
+                    return $this->sendError('Validation Error.', $validator->errors(), 400);
+                }
+
+                $input = $request->all();
+                $idOrganisasi = Auth::user()->id;
+                $data = [
+                    "namaacara" => $input['namaAcara'],
+                    "tanggalacara" => $input['tanggalAcara'],
+                    "lokasiacara" => $input['lokasiAcara'],
+                    "biayadibutuhkan" => $input['biayaDibutuhkan'],
+                    "kegiatanacara" => $input['kegiatanAcara'],
+                    "kotaberlangsung" => $input['kotaBerlangsung'],
+                    "id_organisasi" => $idOrganisasi,
+                ];
+                if (isset($input['posterEvent'])) $data["poster_event"] = $input['posterEvent'];
+                $acara = Acara::create($data);
+                $userOrganisasi = $acara->organisasis;
+                $dataAcara = [
+                    "id_acara" => $acara->id_acara,
+                    "nama_acara" => $acara->namaacara,
+                    "tanggal_acara" => $acara->tanggalacara,
+                    "lokasi_acara" => $acara->lokasiacara,
+                    "biaya_dibutuhkan" => $acara->biayadibutuhkan,
+                    "kegiatan_acara" => $acara->kegiatanacara,
+                    "kota_berlangsung" => $acara->kotaberlangsung,
+                    "poster_acara" => $acara->poster_event,
+                    "organisasi" => [
+                        "id_organisasi" => $userOrganisasi->id_organisasi,
+                        "nama_organisasi" => $userOrganisasi->namaorganisasi,
+                        "kota_domisili_organisasi" => $userOrganisasi->kotadomisiliorganisasi,
+                        "nomor_telepon_organisasi" => $userOrganisasi->nomorteleponorganisasi
+                    ]
+                ];
+
+                return $this->sendResponse($dataAcara, 'Event updated successfully.');
+            } else {
+                return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
+        }
+    }
+
     public function search(Request $request): JsonResponse
     {
         try {

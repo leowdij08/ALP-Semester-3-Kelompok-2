@@ -16,10 +16,11 @@ Route::controller(RegisterController::class)->group(function(){
 });
 
 Route::controller(AcaraController::class)->prefix("acara")->group(function(){
-    Route::get('getAll', "getAll");
+    Route::get('', "getAll");
     Route::get('{idAcara}', "getById");
     Route::get('search/{keyword}', "search");
     Route::post('filter', "filter");
+    Route::post('', "create");
     Route::put('{idAcara}', "update");
 });
 
