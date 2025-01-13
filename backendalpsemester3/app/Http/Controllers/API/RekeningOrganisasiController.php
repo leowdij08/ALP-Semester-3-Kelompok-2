@@ -6,34 +6,34 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\RekeningOrganisasi;
 use Illuminate\Support\Facades\Auth;
-use Validator;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
+use Exception;
 
 class RekeningOrganisasiController extends BaseController
 {
-    public function getbyID($id): JsonResponse
+    public function getById($id): JsonResponse
     {
         try {
             if (Auth::id()) {
                 $userData = RekeningOrganisasi::where('id_rekeningorganisasi', $id)
-                    ->get()->map(
-                        function ($item) {
-                            return [
-                                'id_organisasi' => $item->id_organisasi,
-                                'nomorrekeningorganisasi' => $item->nomorrekeningorganisasi,
-                                'namabankorganisasi' => $item->namabankorganisasi,
-                                'pemilikrekeningorganisasi' => $item->pemilikrekeningorganisasi,
-                            ];
-                        }
-                    );
+                    ->get()
+                    ->map(function ($item) {
+                        return [
+                            'id_organisasi' => $item->id_organisasi,
+                            'nomorrekeningorganisasi' => $item->nomorrekeningorganisasi,
+                            'namabankorganisasi' => $item->namabankorganisasi,
+                            'pemilikrekeningorganisasi' => $item->pemilikrekeningorganisasi,
+                            'isActive' => $item->isActive,
+                        ];
+                    });
 
                 return $this->sendResponse($userData, 'RekeningOrganisasi retrieved successfully.');
             } else {
-                return $this->sendError('Unauthorized Access.', ['error' => 'You are not authorized to access this RekeningOrganisasi.'], 401);
+                return $this->sendError('Unauthorized.', ['error' => 'Access denied. Please log in to view organization accounts.'], 401);
             }
-        } catch (\Exception $e) {
-            return $this->sendError('Server Error.', ['error' => $e->getMessage()], 500);
+        } catch (Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
     }
 
@@ -41,22 +41,24 @@ class RekeningOrganisasiController extends BaseController
     {
         try {
             if (Auth::id()) {
-                $dataUser = RekeningOrganisasi::whereRaw("concat(nomorrekeningorganisasi) like ?", ["%$keyword%"])
-                    ->get()->map(function ($item) {
+                $dataUser = RekeningOrganisasi::where('nomorrekeningorganisasi', 'like', "%$keyword%")
+                    ->get()
+                    ->map(function ($item) {
                         return [
                             'id_organisasi' => $item->id_organisasi,
                             'nomorrekeningorganisasi' => $item->nomorrekeningorganisasi,
                             'namabankorganisasi' => $item->namabankorganisasi,
                             'pemilikrekeningorganisasi' => $item->pemilikrekeningorganisasi,
+                            'isActive' => $item->isActive,
                         ];
                     });
 
-                return $this->sendResponse($dataUser, 'Search completed successfully.');
+                return $this->sendResponse($dataUser, 'Search results retrieved successfully.');
             } else {
-                return $this->sendError('Unauthorized Access.', ['error' => 'You are not authorized to perform this search.'], 401);
+                return $this->sendError('Unauthorized.', ['error' => 'Access denied. Please log in to search organization accounts.'], 401);
             }
-        } catch (\Exception $e) {
-            return $this->sendError('Server Error.', ['error' => $e->getMessage()], 500);
+        } catch (Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
     }
 
@@ -64,40 +66,31 @@ class RekeningOrganisasiController extends BaseController
     {
         try {
             if (Auth::id()) {
-                if (RekeningOrganisasi::where("id_rekeningorganisasi", $idRekeningOrganisasi)->exists()) {
-                    $RekeningOrganisasi = RekeningOrganisasi::where("id_rekeningorganisasi", $idRekeningOrganisasi)->first();
-                    if ($RekeningOrganisasi->id_organisasi == Auth::user()->id) {
-                        $validator = Validator::make($request->all(), [
-                            'nomorrekeningorganisasi' => 'required',
-                            'namabankorganisasi' => 'required|in:BCA,BCA DIGITAL,Mandiri,BNI,DBS',
-                            'pemilikrekeningorganisasi' => 'required',
-                        ]);
+                $rekeningOrganisasi = RekeningOrganisasi::find($idRekeningOrganisasi);
 
-                        if ($validator->fails()) {
-                            return $this->sendError('Validation Error.', $validator->errors(), 400);
-                        }
+                if ($rekeningOrganisasi && $rekeningOrganisasi->id_organisasi == Auth::user()->id) {
+                    $validator = Validator::make($request->all(), [
+                        'nomorrekeningorganisasi' => 'required',
+                        'namabankorganisasi' => 'required|in:BCA,BCA Digital,SEABANK,Mandiri,BNI,DBS',
+                        'pemilikrekeningorganisasi' => 'required',
+                        'isActive' => 'boolean',
+                    ]);
 
-                        $input = $request->all();
-                        $data = [
-                            "nomorrekeningorganisasi" => $input['nomorrekeningorganisasi'],
-                            "namabankorganisasi" => $input['namabankorganisasi'],
-                            "pemilikrekeningorganisasi" => $input['pemilikrekeningorganisasi'],
-                        ];
-
-                        $RekeningOrganisasi->update($data);
-
-                        return $this->sendResponse($RekeningOrganisasi, 'RekeningOrganisasi updated successfully.');
-                    } else {
-                        return $this->sendError('Forbidden Access.', ['error' => 'You do not have permission to update this RekeningOrganisasi.'], 403);
+                    if ($validator->fails()) {
+                        return $this->sendError('Validation Error.', $validator->errors(), 400);
                     }
+
+                    $rekeningOrganisasi->update($request->all());
+
+                    return $this->sendResponse($rekeningOrganisasi, 'RekeningOrganisasi updated successfully.');
                 } else {
-                    return $this->sendError('Not Found.', ['error' => 'RekeningOrganisasi with the given ID was not found.'], 404);
+                    return $this->sendError('Forbidden.', ['error' => 'You do not have permission to update this account.'], 403);
                 }
             } else {
-                return $this->sendError('Unauthorized Access.', ['error' => 'You are not authorized to update this RekeningOrganisasi.'], 401);
+                return $this->sendError('Unauthorized.', ['error' => 'Access denied. Please log in to update organization accounts.'], 401);
             }
-        } catch (\Exception $e) {
-            return $this->sendError('Server Error.', ['error' => $e->getMessage()], 500);
+        } catch (Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
     }
 
@@ -106,24 +99,25 @@ class RekeningOrganisasiController extends BaseController
         try {
             if (Auth::id()) {
                 $validator = Validator::make($request->all(), [
+                    'id_organisasi' => 'required|exists:user_organisasi,id_organisasi',
                     'nomorrekeningorganisasi' => 'required',
-                    'namabankorganisasi' => 'required|in:BCA,BCA DIGITAL,Mandiri,BNI,DBS',
+                    'namabankorganisasi' => 'required|in:BCA,BCA Digital,SEABANK,Mandiri,BNI,DBS',
                     'pemilikrekeningorganisasi' => 'required',
+                    'isActive' => 'boolean',
                 ]);
 
                 if ($validator->fails()) {
                     return $this->sendError('Validation Error.', $validator->errors(), 400);
                 }
 
-                $input = $request->all();
-                $RekeningOrganisasi = RekeningOrganisasi::create($input);
+                $rekeningOrganisasi = RekeningOrganisasi::create($request->all());
 
-                return $this->sendResponse($RekeningOrganisasi, 'RekeningOrganisasi created successfully.');
+                return $this->sendResponse($rekeningOrganisasi, 'RekeningOrganisasi created successfully.');
             } else {
-                return $this->sendError('Unauthorized Access.', ['error' => 'You are not authorized to create this RekeningOrganisasi.'], 401);
+                return $this->sendError('Unauthorized.', ['error' => 'Access denied. Please log in to create organization accounts.'], 401);
             }
-        } catch (\Exception $e) {
-            return $this->sendError('Server Error.', ['error' => $e->getMessage()], 500);
+        } catch (Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
     }
 
@@ -131,22 +125,20 @@ class RekeningOrganisasiController extends BaseController
     {
         try {
             if (Auth::id()) {
-                if (RekeningOrganisasi::where("id_rekeningorganisasi", $idRekeningOrganisasi)->exists()) {
-                    $RekeningOrganisasi = RekeningOrganisasi::where("id_rekeningorganisasi", $idRekeningOrganisasi)->first();
-                    if ($RekeningOrganisasi->id_organisasi == Auth::user()->id) {
-                        $RekeningOrganisasi->delete();
-                        return $this->sendResponse(['isDeleted' => true], 'RekeningOrganisasi deleted successfully.');
-                    } else {
-                        return $this->sendError('Forbidden Access.', ['error' => 'You do not have permission to delete this RekeningOrganisasi.'], 403);
-                    }
+                $rekeningOrganisasi = RekeningOrganisasi::find($idRekeningOrganisasi);
+
+                if ($rekeningOrganisasi && $rekeningOrganisasi->id_organisasi == Auth::user()->id) {
+                    $rekeningOrganisasi->delete();
+
+                    return $this->sendResponse(['isDeleted' => true], 'RekeningOrganisasi deleted successfully.');
                 } else {
-                    return $this->sendError('Not Found.', ['error' => 'RekeningOrganisasi with the given ID was not found.'], 404);
+                    return $this->sendError('Forbidden.', ['error' => 'You do not have permission to delete this account.'], 403);
                 }
             } else {
-                return $this->sendError('Unauthorized Access.', ['error' => 'You are not authorized to delete this RekeningOrganisasi.'], 401);
+                return $this->sendError('Unauthorized.', ['error' => 'Access denied. Please log in to delete organization accounts.'], 401);
             }
-        } catch (\Exception $e) {
-            return $this->sendError('Server Error.', ['error' => $e->getMessage()], 500);
+        } catch (Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
     }
 }
