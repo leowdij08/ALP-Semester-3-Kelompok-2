@@ -45,4 +45,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function perusahaan()
+    {
+        return $this->hasOne(UserPerusahaan::class, 'id_perusahaan');
+    }
+
+    public function organisasi()
+    {
+        return $this->hasOne(UserOrganisasi::class, 'id_organisasi');
+    }
 }

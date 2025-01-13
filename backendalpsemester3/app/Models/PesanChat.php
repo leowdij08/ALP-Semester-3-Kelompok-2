@@ -24,4 +24,9 @@ class PesanChat extends Model
     {
         return $this->belongsTo(Chat::class, 'id_chat');
     }
+
+    public function lampirans()
+    {
+        return $this->hasOne(LampiranPesan::class, 'id_pesan');
+    }
 }
