@@ -8,8 +8,6 @@ use App\Models\UserOrganisasi;
 use Illuminate\Support\Facades\Auth;
 use Validator;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 class UserOrganisasiController extends BaseController
 {
@@ -31,7 +29,7 @@ class UserOrganisasiController extends BaseController
                     );
 
             
-                return $this->sendResponse($userData, 'User data retrieved successfully.');
+                return $this->sendResponse($userData, 'UserOrganisasi data retrieved successfully.');
             } else {
                 return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
             }
@@ -55,7 +53,7 @@ class UserOrganisasiController extends BaseController
                     ];
                 });
 
-                return $this->sendResponse($dataUser, 'Events searched successfully.');
+                return $this->sendResponse($dataUser, 'UserOrganisasi searched successfully.');
             } else {
                 return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
             }
@@ -63,5 +61,53 @@ class UserOrganisasiController extends BaseController
             return $this->sendError('Server Error.', $e->getMessage());
         }
 }
+
+public function update(Request $request): JsonResponse
+    {
+        try {
+            if (Auth::id()) {
+                $idOrganisasi = UserOrganisasi::where('id_user', Auth::user()->id)->first()->id_organisasi;
+                if (UserOrganisasi::where("id_organisasi", $idOrganisasi)->count() > 0) {
+                    if (UserOrganisasi::where("id_organisasi", $idOrganisasi)->first()->id_user == Auth::user()->id) {
+                        $validator = Validator::make($request->all(), [
+                            'namaorganisasi' => 'required',
+                            'kotadomisiliorgansiasi' => 'required|in:Makassar,Jakarta,Surabaya',
+                            'nomorteleponorganisasi' => 'required|regex:/[0-9]/',
+                        ]);
+
+                        if ($validator->fails()) {
+                            return $this->sendError('Validation Error.', $validator->errors(), 400);
+                        }
+
+                        $input = $request->all();
+                        $data = [
+                            "namaorganisasi" => $input['namaorganisasi'],
+                            "kotadomisiliorgansiasi" => $input['kotadomisiliorgansiasi'],
+                            "nomorteleponorganisasi" => $input['nomorteleponorganisasi'],
+                        ];
+                        UserOrganisasi::where('id_organisasi', $idOrganisasi)->update($data);
+                        $dataOrganisasi = UserOrganisasi::where("id_organisasi", $idOrganisasi)->get()->map(function ($Organisasi) {
+                            return [
+                            'id_user' => $Organisasi->id_organisasi,
+                            'namaorganisasi' => $Organisasi->namaorganisasi,
+                            'kotadomisiliorganisasi' => $Organisasi->kotadomisiliorganisasi,
+                            'nomorteleponorganisasi' => $Organisasi->nomorteleponorganisasi,
+                            ];
+                        });
+
+                        return $this->sendResponse($dataOrganisasi, 'UserOrganisasi updated successfully.');
+                    } else {
+                        return $this->sendError('Forbidden.', ['error' => 'Not Your Account'], 403);
+                    }
+                } else {
+                    return $this->sendError('Account Not Found.', ['error' => 'No Account With That ID Was Found'], 404);
+                }
+            } else {
+                return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
+        }
+    }
 
 }
