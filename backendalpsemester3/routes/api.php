@@ -7,8 +7,8 @@ use App\Http\Controllers\API\AcaraController;
 use App\Http\Controllers\API\UserPerusahaanController;
 use App\Http\Controllers\API\UserOrganisasiController;
 use App\Http\Controllers\API\LaporanPertanggungJawabanController;
+use App\Http\Controllers\API\PenanggungJawabOrganisasiController;
 use App\Http\Controllers\API\PenanggungJawabPerusahaanController;
-
 
 Route::controller(RegisterController::class)->group(function(){
     Route::post('register_organisasi', 'register_organisasi');
@@ -40,7 +40,12 @@ Route::controller(UserOrganisasiController::class)->prefix("organisasi")->group(
     Route::get('/search/{keyword}', "search");
 });
 
-Route::controller(LaporanPertanggungJawabanController::class)->prefix("perusahaan")->group(function(){
+Route::controller(LaporanPertanggungJawabanController::class)->prefix("laporan")->group(function(){
+    Route::get('{id}', "getbyID");
+    Route::get('search/{keyword}', "search");
+});
+
+Route::controller(PenanggungJawabOrganisasiController::class)->prefix("penanggungjawaborganisasi")->group(function(){
     Route::get('{id}', "getbyID");
     Route::get('search/{keyword}', "search");
 });
