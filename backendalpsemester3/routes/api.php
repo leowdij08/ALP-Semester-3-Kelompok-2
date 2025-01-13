@@ -9,7 +9,7 @@ use App\Http\Controllers\API\UserOrganisasiController;
 use App\Http\Controllers\API\LaporanPertanggungJawabanController;
 use App\Http\Controllers\API\PenanggungJawabOrganisasiController;
 use App\Http\Controllers\API\PenanggungJawabPerusahaanController;
-use App\Http\Controllers\API\PesanChatController;
+use App\Http\Controllers\API\ChatController;
 
 Route::controller(RegisterController::class)->group(function(){
     Route::post('register_organisasi', 'register_organisasi');
@@ -27,13 +27,10 @@ Route::controller(AcaraController::class)->prefix("acara")->group(function(){
     Route::put('{idAcara}', "update");
 });
 
-Route::controller(PesanChatController::class)->prefix("pesanChat")->group(function(){
+Route::controller(ChatController::class)->prefix("chat")->group(function(){
     Route::get('', "getAll");
-    Route::get('{idAcara}', "getById");
-    Route::get('search/{keyword}', "search");
-    Route::post('filter', "filter");
-    Route::post('', "create");
-    Route::put('{idAcara}', "update");
+    Route::get('{idChat}', "getById");
+    Route::post('', "sendChat");
 });
 
 Route::middleware('auth:sanctum')->group( function () {
