@@ -183,20 +183,23 @@ class RegisterController extends BaseController
         try {
             if (Auth::id()) {
                 $user = Auth::user();
-                $userData = User::where('level', $user->level)
-                    ->where('id_user', $user->id)
-                    ->first();
 
                 switch ($user->level) {
                     case "perusahaan":
+                        $userData = UserPerusahaan::where('id_user', $user->id)
+                            ->first();
                         $datas = [
+                            "id_perusahaan" => $userData->id_perusahaan,
                             "namaPerusahaan" => $userData->namaperusahaan,
                             "kotaDomisiliPerusahaan" => $userData->kotadomisiliperusahaan,
                             "nomorTeleponPerusahaan" => $userData->nomorteleponperusahaan,
                         ];
                         break;
                     case "organisasi":
+                        $userData = UserOrganisasi::where('id_user', $user->id)
+                            ->first();
                         $datas = [
+                            "id_organisasi" => $userData->id_organisasi,
                             "namaOrganisasi" => $userData->namaorganisasi,
                             "kotaDomisiliOrganisasi" => $userData->kotadomisiliorganisasi,
                             "nomorTeleponOrganisasi" => $userData->nomorteleponorganisasi,
@@ -204,6 +207,7 @@ class RegisterController extends BaseController
                         break;
                 }
                 $success['level'] = $user->level;
+                $success['id_user'] = $user->id;
                 $success['user'] = $datas;
 
                 return $this->sendResponse($success, 'User data retrieved successfully.');
