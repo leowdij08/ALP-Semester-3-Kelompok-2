@@ -277,4 +277,26 @@ class AcaraController extends BaseController
             return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
     }
+
+
+    public function delete($idAcara, Request $request): JsonResponse
+    {
+        try {
+            if (Auth::id()) {
+                if (Acara::where("id_acara", $idAcara)->count() > 0) {
+                    if (Acara::where("id_acara", $idAcara)->first()->id_organisasi == Auth::user()->id) {
+                        return $this->sendResponse(['isDeleted' => Acara::where('id_acara', $idAcara)->delete() ? true : false], 'Event deleted successfully.');
+                    } else {
+                        return $this->sendError('Forbidden.', ['error' => 'Not Your Event'], 403);
+                    }
+                } else {
+                    return $this->sendError('Event Not Found.', ['error' => 'No Event With That ID Was Found'], 404);
+                }
+            } else {
+                return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
+        }
+    }
 }
