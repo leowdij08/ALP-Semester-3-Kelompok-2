@@ -278,7 +278,6 @@ class AcaraController extends BaseController
         }
     }
 
-
     public function delete($idAcara, Request $request): JsonResponse
     {
         try {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\PenanggungJawabPerusahaan;
+use App\Models\UserPerusahaan;
 use Illuminate\Support\Facades\Auth;
 use Validator;
 use Illuminate\Http\JsonResponse;
@@ -72,8 +73,8 @@ public function update(Request $request): JsonResponse
 {
     try {
         if (Auth::id()) {
-            $userOrganisasi = UserOrganisasi::where('id_user', Auth::user()->id)->first();
-            $penanggungJawab = $userOrganisasi->penanggungjawab;
+            $userPerusahaan = UserPerusahaan::where('id_user', Auth::user()->id)->first();
+            $penanggungJawab = $userPerusahaan->penanggungjawab;
             $validator = Validator::make($request->all(), [
                 'namaLengkapPenanggungJawab' => 'required',
                 'tanggalLahirPenanggungJawab' => 'required|date|date_format:Y-m-d|before:today',
