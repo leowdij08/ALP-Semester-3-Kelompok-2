@@ -61,4 +61,43 @@ class UserPerusahaanController extends BaseController
         }
 }
 
+public function update(Request $request): JsonResponse
+{
+    try {
+        if (Auth::id()) {
+            $userPerusahaan = UserPerusahaan::where('id_user', Auth::user()->id)->first();
+            $validator = Validator::make($request->all(), [
+                'namaperusahaan' => 'required',
+                'kotadomisiliperusahaan' => 'required|in:Makassar,Jakarta,Surabaya',
+                'nomorteleponperusahaan' => 'required|regex:/[0-9]/',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendError('Validation Error.', $validator->errors(), 400);
+            }
+
+            $input = $request->all();
+            $data = [
+                "namaperusahaan" => $input['namaperusahaan'],
+                "kotadomisiliperusahaan" => $input['kotadomisiliperusahaan'],
+                "nomorteleponperusahaan" => $input['nomorteleponperusahaan'],
+            ];
+            $userPerusahaan->update($data);
+            $dataPerusahaan = $userPerusahaan->get()->map(function ($Perusahaan) {
+                return [
+                    'id_user' => $Perusahaan->id_perusahaan,
+                    'namaperusahaan' => $Perusahaan->namaperusahaan,
+                    'kotadomisiliperusahaan' => $Perusahaan->kotadomisiliperusahaan,
+                    'nomorteleponperusahaan' => $Perusahaan->nomorteleponperusahaan,
+                ];
+            });
+
+            return $this->sendResponse($dataPerusahaan, 'UserPerusahaan updated successfully.');
+        } else {
+            return $this->sendError('Forbidden.', ['error' => 'Not Your Account'], 403);
+        }
+    } catch (\Exception $e) {
+        return $this->sendError('Server Error.', $e->getMessage(), 500);
+    }
+}
 }
