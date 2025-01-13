@@ -10,6 +10,7 @@ use App\Http\Controllers\API\LaporanPertanggungJawabanController;
 use App\Http\Controllers\API\PenanggungJawabOrganisasiController;
 use App\Http\Controllers\API\PenanggungJawabPerusahaanController;
 use App\Http\Controllers\API\ChatController;
+use App\Http\Controllers\API\RekeningTemuController;
 
 Route::controller(RegisterController::class)->group(function(){
     Route::post('register_organisasi', 'register_organisasi');
@@ -69,4 +70,12 @@ Route::controller(PenanggungJawabPerusahaanController::class)->prefix("penanggun
     Route::get('{id}', "getbyID");
     Route::get('search/{keyword}', "search");
     Route::put('', "update");
+});
+
+Route::controller(RekeningTemuController::class)->prefix("rekeningtemu")->group(function () {
+    Route::get('{id}', "getById"); 
+    Route::get('search/{keyword}', "search"); 
+    Route::post('', "create"); 
+    Route::put('{idRekeningTemu}', "update"); 
+    Route::delete('{idRekeningTemu}', "delete"); 
 });
