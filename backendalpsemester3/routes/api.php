@@ -25,6 +25,7 @@ Route::controller(AcaraController::class)->prefix("acara")->group(function(){
     Route::post('filter', "filter");
     Route::post('', "create");
     Route::put('{idAcara}', "update");
+    Route::delete('{idAcara}', "delete");
 });
 
 Route::controller(ChatController::class)->prefix("chat")->group(function(){
