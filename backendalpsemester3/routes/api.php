@@ -38,6 +38,8 @@ Route::controller(UserPerusahaanController::class)->prefix("perusahaan")->group(
 Route::controller(UserOrganisasiController::class)->prefix("organisasi")->group(function(){
     Route::get('/{id}', "getbyID");
     Route::get('/search/{keyword}', "search");
+    Route::put('', "update");
+
 });
 
 Route::controller(LaporanPertanggungJawabanController::class)->prefix("laporan")->group(function(){

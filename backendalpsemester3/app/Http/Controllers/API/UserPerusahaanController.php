@@ -8,8 +8,6 @@ use App\Models\UserPerusahaan;
 use Illuminate\Support\Facades\Auth;
 use Validator;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 class UserPerusahaanController extends BaseController
 {
