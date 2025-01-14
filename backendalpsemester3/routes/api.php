@@ -44,13 +44,15 @@ Route::middleware('auth:sanctum')->group( function () {
 });
 
 Route::controller(UserPerusahaanController::class)->prefix("perusahaan")->group(function(){
-    Route::get('{id}', "getbyID");
+    Route::get('', "getAll");
+    Route::get('{idPerusahaan}', "getbyID");
     Route::get('search/{keyword}', "search");
     Route::put('', "update");
 });
 
 Route::controller(UserOrganisasiController::class)->prefix("organisasi")->group(function(){
-    Route::get('/{id}', "getbyID");
+    Route::get('', "getAll");
+    Route::get('/{idOrganisasi}', "getbyID");
     Route::get('/search/{keyword}', "search");
     Route::put('', "update");
 
@@ -77,11 +79,9 @@ Route::controller(PenanggungJawabPerusahaanController::class)->prefix("penanggun
 });
 
 Route::controller(PembayaranPerusahaanController::class)->prefix("pembayaranperusahaan")->group(function() {
-    Route::get('{id}', "getbyID");
-    Route::get('search/{keyword}', "search");
-    Route::put('{idPembayaranPerusahaan}', "update");
-    Route::delete('{idPembayaranPerusahaan}', "delete");
-    Route::post('{idPembayaranPerusahaan}', "create");
+    Route::get('', "getAll");
+    Route::get('{idPembayaran}', "getbyID");
+    Route::post('{idAcara}', "create");
 });
 
 Route::controller(RekeningPerusahaanController::class)->prefix("rekeningperusahaaan")->group(function(){
@@ -93,11 +93,11 @@ Route::controller(RekeningPerusahaanController::class)->prefix("rekeningperusaha
 });
 
 Route::controller(RekeningTemuController::class)->prefix("rekeningtemu")->group(function () {
-    Route::get('{id}', "getById"); 
-    Route::get('search/{keyword}', "search"); 
-    Route::post('', "create"); 
-    Route::put('{idRekeningTemu}', "update"); 
-    Route::delete('{idRekeningTemu}', "delete"); 
+    Route::get('{id}', "getById");
+    Route::get('search/{keyword}', "search");
+    Route::post('', "create");
+    Route::put('{idRekeningTemu}', "update");
+    Route::delete('{idRekeningTemu}', "delete");
 });
 
 Route::controller(RekeningOrganisasiController::class)->prefix("rekeningorganisasi")->group(function(){
