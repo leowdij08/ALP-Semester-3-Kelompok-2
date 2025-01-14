@@ -16,7 +16,6 @@ class PembayaranPerusahaan extends Model
         'id_acara'.
         'biayatotal',
         'tanggalpembayaran',
-        'waktupembayaran',
         'buktipembayaran',
     ];
 
