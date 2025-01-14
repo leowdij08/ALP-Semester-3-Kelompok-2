@@ -11,6 +11,7 @@ use App\Http\Controllers\API\PenanggungJawabOrganisasiController;
 use App\Http\Controllers\API\PenanggungJawabPerusahaanController;
 use App\Http\Controllers\API\ChatController;
 use App\Http\Controllers\API\RekeningOrganisasiController;
+use App\Http\Controllers\API\PenarikanOrganisasiController;
 
 
 Route::controller(RegisterController::class)->group(function(){
@@ -79,4 +80,12 @@ Route::controller(RekeningOrganisasiController::class)->prefix("rekeningorganisa
     Route::put('{idRekeingOrganisasi}', "update");
     Route::delete('{idRekeningOrganisasi}', "delete");
     Route::post('{idRekeningOrganisasi}', "create");
+});
+
+Route::controller(PenarikanOrganisasiController::class)->prefix("penarikanorganisasi")->group(function() {
+    Route::get('', "getAll");
+    Route::get('{id}', "getById");
+    Route::post('', "create");
+    Route::put('{id}', "update");
+    Route::delete('{id}', "delete");
 });
