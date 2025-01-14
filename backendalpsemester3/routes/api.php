@@ -10,6 +10,7 @@ use App\Http\Controllers\API\LaporanPertanggungJawabanController;
 use App\Http\Controllers\API\PenanggungJawabOrganisasiController;
 use App\Http\Controllers\API\PenanggungJawabPerusahaanController;
 use App\Http\Controllers\API\ChatController;
+use App\Http\Controllers\API\RekeningOrganisasiController;
 use App\Http\Controllers\API\PenarikanOrganisasiController;
 
 
@@ -73,6 +74,14 @@ Route::controller(PenanggungJawabPerusahaanController::class)->prefix("penanggun
     Route::put('', "update");
 });
 
+Route::controller(RekeningOrganisasiController::class)->prefix("rekeningorganisasi")->group(function(){
+    Route::get('{id}', "getbyID");
+    Route::get('search/{keyword}', "search");
+    Route::put('{idRekeingOrganisasi}', "update");
+    Route::delete('{idRekeningOrganisasi}', "delete");
+    Route::post('{idRekeningOrganisasi}', "create");
+});
+
 Route::controller(PenarikanOrganisasiController::class)->prefix("penarikanorganisasi")->group(function() {
     Route::get('', "getAll");
     Route::get('{id}', "getById");
@@ -80,4 +89,3 @@ Route::controller(PenarikanOrganisasiController::class)->prefix("penarikanorgani
     Route::put('{id}', "update");
     Route::delete('{id}', "delete");
 });
-
