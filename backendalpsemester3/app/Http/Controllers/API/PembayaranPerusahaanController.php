@@ -9,14 +9,11 @@ use Illuminate\Support\Facades\Validator;
 
 class PembayaranPerusahaanController extends Controller
 {
-    // Get all pembayaran
     public function getAll()
     {
         $pembayaran = PembayaranPerusahaan::with(['rekeningperusahaans', 'acaras'])->get();
         return response()->json($pembayaran, 200);
     }
-
-    // Get pembayaran by ID
     public function getById($id)
     {
         $pembayaran = PembayaranPerusahaan::with(['rekeningperusahaans', 'acaras'])->find($id);
@@ -27,8 +24,6 @@ class PembayaranPerusahaanController extends Controller
 
         return response()->json($pembayaran, 200);
     }
-
-    // Create a new pembayaran
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -47,8 +42,6 @@ class PembayaranPerusahaanController extends Controller
 
         return response()->json($pembayaran, 201);
     }
-
-    // Update pembayaran by ID
     public function update(Request $request, $id)
     {
         $pembayaran = PembayaranPerusahaan::find($id);
@@ -73,8 +66,6 @@ class PembayaranPerusahaanController extends Controller
 
         return response()->json($pembayaran, 200);
     }
-
-    // Delete pembayaran by ID
     public function delete($id)
     {
         $pembayaran = PembayaranPerusahaan::find($id);
