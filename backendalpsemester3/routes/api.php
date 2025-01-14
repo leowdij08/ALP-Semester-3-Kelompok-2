@@ -10,6 +10,7 @@ use App\Http\Controllers\API\LaporanPertanggungJawabanController;
 use App\Http\Controllers\API\PenanggungJawabOrganisasiController;
 use App\Http\Controllers\API\PenanggungJawabPerusahaanController;
 use App\Http\Controllers\API\ChatController;
+use App\Http\Controllers\API\PembayaranPerusahaanController;
 use App\Http\Controllers\API\RekeningPerusahaanController;
 use App\Http\Controllers\API\RekeningTemuController;
 use App\Http\Controllers\API\RekeningOrganisasiController;
@@ -73,6 +74,14 @@ Route::controller(PenanggungJawabPerusahaanController::class)->prefix("penanggun
     Route::get('{id}', "getbyID");
     Route::get('search/{keyword}', "search");
     Route::put('', "update");
+});
+
+Route::controller(PembayaranPerusahaanController::class)->prefix("pembayaranperusahaan")->group(function() {
+    Route::get('{id}', "getbyID");
+    Route::get('search/{keyword}', "search");
+    Route::put('{idPembayaranPerusahaan}', "update");
+    Route::delete('{idPembayaranPerusahaan}', "delete");
+    Route::post('{idPembayaranPerusahaan}', "create");
 });
 
 Route::controller(RekeningPerusahaanController::class)->prefix("rekeningperusahaaan")->group(function(){
