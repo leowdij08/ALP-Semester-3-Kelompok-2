@@ -11,6 +11,8 @@ use App\Http\Controllers\API\PenanggungJawabOrganisasiController;
 use App\Http\Controllers\API\PenanggungJawabPerusahaanController;
 use App\Http\Controllers\API\ChatController;
 use App\Http\Controllers\API\RekeningTemuController;
+use App\Http\Controllers\API\RekeningOrganisasiController;
+use App\Http\Controllers\API\PenarikanOrganisasiController;
 
 Route::controller(RegisterController::class)->group(function(){
     Route::post('register_organisasi', 'register_organisasi');
@@ -78,4 +80,20 @@ Route::controller(RekeningTemuController::class)->prefix("rekeningtemu")->group(
     Route::post('', "create"); 
     Route::put('{idRekeningTemu}', "update"); 
     Route::delete('{idRekeningTemu}', "delete"); 
+});
+
+Route::controller(RekeningOrganisasiController::class)->prefix("rekeningorganisasi")->group(function(){
+    Route::get('{id}', "getbyID");
+    Route::get('search/{keyword}', "search");
+    Route::put('{idRekeingOrganisasi}', "update");
+    Route::delete('{idRekeningOrganisasi}', "delete");
+    Route::post('{idRekeningOrganisasi}', "create");
+});
+
+Route::controller(PenarikanOrganisasiController::class)->prefix("penarikanorganisasi")->group(function() {
+    Route::get('', "getAll");
+    Route::get('{id}', "getById");
+    Route::post('', "create");
+    Route::put('{id}', "update");
+    Route::delete('{id}', "delete");
 });
