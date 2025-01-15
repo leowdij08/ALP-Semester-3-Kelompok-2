@@ -31,6 +31,9 @@ Route::controller(AcaraController::class)->prefix("acara")->group(function(){
     Route::post('', "create");
     Route::put('{idAcara}', "update");
     Route::delete('{idAcara}', "delete");
+    Route::get('getByOrganisasi/{idOrganisasi}/{filter?}', "getByOrganisasi");
+    Route::get('getHistory/organisasi/{idOrganisasi}', "getHistoryOrganisasi");
+    Route::get('getHistory/perusahaan/{idPerusahaan}', "getHistoryPerusahaan");
 });
 
 Route::controller(ChatController::class)->prefix("chat")->group(function(){
