@@ -12,12 +12,10 @@ class PenarikanOrganisasi extends Model
     protected $table = 'penarikan_organisasis';
 
     protected $fillable = [
-        'id_penarikan',
         'id_rekeningorganisasi',
         'jumlahdanaditarik',
         'tanggalpenarikan',
-        'waktupenarikan',
-        'buktipenarikan',
+        'isProcessed'
     ];
 
     public function rekeningorganisasis()

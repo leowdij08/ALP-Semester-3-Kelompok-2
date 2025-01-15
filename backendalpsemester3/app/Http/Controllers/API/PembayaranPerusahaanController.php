@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
 use App\Models\PembayaranPerusahaan;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
@@ -18,7 +17,7 @@ class PembayaranPerusahaanController extends BaseController
     {
         try {
             if (Auth::id()) {
-                $dataPembayaran = PembayaranPerusahaan::where("id_perusahaan", Auth::user()->perusahaan->id_perusahaan)->all()->map(function ($pembayaran) {
+                $dataPembayaran = PembayaranPerusahaan::where("id_perusahaan", Auth::user()->perusahaan->id_perusahaan)->get()->map(function ($pembayaran) {
                     $rekening = $pembayaran->rekeningperusahaans;
                     $acara = $pembayaran->acaras;
                     $userOrganisasi = $acara->organisasis;
@@ -103,7 +102,7 @@ class PembayaranPerusahaanController extends BaseController
                         return $this->sendError('Forbidden.', ['error' => 'Not Your Payment'], 403);
                     }
                 } else {
-                    return $this->sendError('Event Not Found.', ['error' => 'No Payment With That ID Was Found'], 404);
+                    return $this->sendError('Payment Not Found.', ['error' => 'No Payment With That ID Was Found'], 404);
                 }
             } else {
                 return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);

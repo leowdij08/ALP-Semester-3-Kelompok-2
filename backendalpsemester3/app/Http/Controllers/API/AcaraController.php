@@ -129,7 +129,7 @@ class AcaraController extends BaseController
         try {
             if (Auth::id()) {
                 if (Acara::where("id_acara", $idAcara)->count() > 0) {
-                    if (Acara::where("id_acara", $idAcara)->first()->id_organisasi == Auth::user()->id) {
+                    if (Acara::where("id_acara", $idAcara)->first()->id_organisasi == Auth::user()->organisasi->id_organisasi) {
                         $validator = Validator::make($request->all(), [
                             'namaAcara' => 'required',
                             'tanggalAcara' => 'required|date|date_format:Y-m-d',

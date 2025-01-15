@@ -14,7 +14,7 @@ class CreatePenarikanOrganisasisTable extends Migration
             $table->unsignedBigInteger('id_rekeningorganisasi');
             $table->integer('jumlahdanaditarik');
             $table->datetime('tanggalpenarikan');
-            $table->longtext('buktipenarikan');
+            $table->boolean('isProcessed');
             $table->timestamps();
 
             $table->foreign('id_rekeningorganisasi')->references('id_rekeningorganisasi')->on('rekening_organisasi')->onDelete("cascade");

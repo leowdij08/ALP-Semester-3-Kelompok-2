@@ -107,6 +107,4 @@ Route::controller(PenarikanOrganisasiController::class)->prefix("penarikanorgani
     Route::get('', "getAll");
     Route::get('{id}', "getById");
     Route::post('', "create");
-    Route::put('{id}', "update");
-    Route::delete('{id}', "delete");
 });
