@@ -61,6 +61,15 @@ class AcaraController extends BaseController
                             return $biaya->biayatotal;
                         }));
                         $biayaDibutuhkan = $acara->biayadibutuhkan <= $biayaDikumpulkan ? 0 : $acara->biayadibutuhkan - $biayaDikumpulkan;
+                        $perusahaanKerjasama = PembayaranPerusahaan::where('id_acara', $acara->id_acara)->groupBy("id_rekeningperusahaan")->get()->map(function ($pembayaran){
+                            $perusahaan = $pembayaran->rekeningperusahaans->perusahaans;
+                            return [
+                                "namaPerusahaan" => $perusahaan->namaperusahaan,
+                                "jumlahSponsor" => array_sum(...PembayaranPerusahaan::where('id_acara', $pembayaran->id_acara)->where("id_rekeningperusahaan", $pembayaran->rekeningperusahaans->id_rekeningperusahaan)->get()->map(function ($biaya){
+                                    return $biaya->biayatotal;
+                                }))
+                            ];
+                        });
                         return [
                             "id_acara" => $acara->id_acara,
                             "nama_acara" => $acara->namaacara,
@@ -76,7 +85,8 @@ class AcaraController extends BaseController
                                 "nama_organisasi" => $userOrganisasi->namaorganisasi,
                                 "kota_domisili_organisasi" => $userOrganisasi->kotadomisiliorganisasi,
                                 "nomor_telepon_organisasi" => $userOrganisasi->nomorteleponorganisasi
-                            ]
+                            ],
+                            "perusahaan_kerjasama" => $perusahaanKerjasama
                         ];
                     });
 
@@ -376,7 +386,7 @@ class AcaraController extends BaseController
                         $perusahaan = $pembayaran->rekeningperusahaans->perusahaans;
                         return [
                             "namaPerusahaan" => $perusahaan->namaperusahaan,
-                            "jumlahSponsor" => array_sum(...PembayaranPerusahaan::where('id_acara', $acara->id_acara)->where("id_rekeningperusahaan", $pembayaran->rekeningperusahaans->id_rekeningperusahaan)->get()->map(function ($biaya){
+                            "jumlahSponsor" => array_sum(...PembayaranPerusahaan::where('id_acara', $pembayaran->id_acara)->where("id_rekeningperusahaan", $pembayaran->rekeningperusahaans->id_rekeningperusahaan)->get()->map(function ($biaya){
                                 return $biaya->biayatotal;
                             }))
                         ];
