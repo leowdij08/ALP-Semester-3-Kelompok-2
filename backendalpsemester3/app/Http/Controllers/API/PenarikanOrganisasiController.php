@@ -2,73 +2,132 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\PenarikanOrganisasi;
+use Illuminate\Http\Request;
+use App\Http\Controllers\API\BaseController as BaseController;
+use App\Models\RekeningOrganisasi;
+use App\Models\PembayaranPerusahaan;
+use Illuminate\Support\Facades\Auth;
+use Validator;
+use Illuminate\Http\JsonResponse;
 
-class PenarikanOrganisasiController extends Controller
+class PenarikanOrganisasiController extends BaseController
 {
-    public function getAll()
+    public function getAll(): JsonResponse
     {
-        $penarikans = PenarikanOrganisasi::with('rekeningorganisasis')->get();
-        return response()->json($penarikans, 200);
+        try {
+            if (Auth::id()) {
+                $dataPenarikan = PenarikanOrganisasi::where("id_organisasi", Auth::user()->organisasi->id_organisasi)->get()->map(function ($penarikan) {
+                    $rekening = $penarikan->rekeningorganisasis;
+                    return [
+                        "rekening" => [
+                            "idRekening" => $rekening->id_rekeningorganisasi,
+                            "namaBank" => $rekening->namabankorganisasi,
+                            "nomorRekening" => $rekening->nomorrekeningorganisasi,
+                            "namaPemilik" => $rekening->pemilikrekeningorganisasi
+                        ],
+                        "totalPenarikan" => $penarikan->biayatotal,
+                        "tanggalPenarikan" => $penarikan->tanggalpenarikan,
+                        "sudahDiproses" => $penarikan->isProcessed,
+                    ];
+                });
+
+                return $this->sendResponse($dataPenarikan, 'Withdraw data retrieved successfully.');
+            } else {
+                return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
+        }
     }
 
-    public function getById($id)
+    public function getById($id): JsonResponse
     {
-        $penarikan = PenarikanOrganisasi::with('rekeningorganisasis')->find($id);
+        try {
+            if (Auth::id()) {
+                if (PenarikanOrganisasi::where("id_penarikanorganisasi", $id)->count() > 0) {
+                    if (PenarikanOrganisasi::where("id_penarikanorganisasi", $id)->first()->id_organisasi == Auth::user()->organisasi->id_organisasi) {
+                        $dataPenarikan = PenarikanOrganisasi::where("id_penarikanorganisasi", $id)->first()->map(function ($penarikan) {
+                            $rekening = $penarikan->rekeningorganisasis;
+                            return [
+                                "rekening" => [
+                                    "idRekening" => $rekening->id_rekeningorganisasi,
+                                    "namaBank" => $rekening->namabankorganisasi,
+                                    "nomorRekening" => $rekening->nomorrekeningorganisasi,
+                                    "namaPemilik" => $rekening->pemilikrekeningorganisasi
+                                ],
+                                "totalPenarikan" => $penarikan->biayatotal,
+                                "tanggalPenarikan" => $penarikan->tanggalpenarikan,
+                                "sudahDiproses" => $penarikan->isProcessed,
+                            ];
+                        });
 
-        if (!$penarikan) {
-            return response()->json(['message' => 'Penarikan not found'], 404);
+                        return $this->sendResponse($dataPenarikan, 'Withdraw data retrieved successfully.');
+                    } else {
+                        return $this->sendError('Forbidden.', ['error' => 'Not Your Withdrawal'], 403);
+                    }
+                } else {
+                    return $this->sendError('Withdraw Not Found.', ['error' => 'No Withdrawal With That ID Was Found'], 404);
+                }
+            } else {
+                return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
-
-        return response()->json($penarikan, 200);
     }
 
     public function create(Request $request)
     {
-        $validated = $request->validate([
-            'id_rekeningorganisasi' => 'required|exists:rekening_organisasi,id_rekeningorganisasi',
-            'jumlahdanaditarik' => 'required|integer|min:1',
-            'tanggalpenarikan' => 'required|date',
-            'buktipenarikan' => 'required|string',
-        ]);
+        try {
+            if (Auth::id()) {
+                $validator = Validator::make($request->all(), [
+                    'jumlahPenarikan' => 'required|regex:/[0-9]/',
+                ]);
 
-        $penarikan = PenarikanOrganisasi::create($validated);
+                if ($validator->fails()) {
+                    return $this->sendError('Validation Error.', $validator->errors(), 400);
+                }
 
-        return response()->json(['message' => 'Penarikan created successfully', 'data' => $penarikan], 201);
-    }
+                $input = $request->all();
+                $danaMasuk = PembayaranPerusahaan::where("id_organisasi", Auth::user()->organisasi->id_organisasi)->get()->map(function ($pembayaran) {
+                    return $pembayaran->biayatotal;
+                });
+                $danaKeluar = PenarikanOrganisasi::where("id_organisasi", Auth::user()->organisasi->id_organisasi)->get()->map(function ($penarikan) {
+                    return $penarikan->jumlahdanaditarik;
+                });
+                $saldo = array_sum(...$danaMasuk) - array_sum(...$danaKeluar);
+                if ($saldo < $input['totalPenarikan']) return $this->sendError('Bad Request.', ['error' => 'Withdrawal surpassed limit'], 404);
 
-    public function update(Request $request, $id)
-    {
-        $penarikan = PenarikanOrganisasi::find($id);
+                $rekening = RekeningOrganisasi::where("id_organisasi", Auth::user()->organisasi)->first();
+                $data = [
+                    "id_rekeningorganisasi" => $rekening->id_rekeningorganisasi,
+                    "jumlahdanaditarik" => $input['totalPenarikan'],
+                    "tanggalpenarikan" => now(),
+                    "isProcessed" => false
+                ];
+                $penarikan = PenarikanOrganisasi::create($data);
+                $dataPenarikan = $penarikan->get()->map(function ($penarikan) {
+                    $rekening = $penarikan->rekeningorganisasis;
+                    return [
+                        "rekening" => [
+                            "idRekening" => $rekening->id_rekeningorganisasi,
+                            "namaBank" => $rekening->namabankorganisasi,
+                            "nomorRekening" => $rekening->nomorrekeningorganisasi,
+                            "namaPemilik" => $rekening->pemilikrekeningorganisasi
+                        ],
+                        "totalPenarikan" => $penarikan->biayatotal,
+                        "tanggalPenarikan" => $penarikan->tanggalpenarikan,
+                        "sudahDiproses" => $penarikan->isProcessed,
+                    ];
+                });
 
-        if (!$penarikan) {
-            return response()->json(['message' => 'Penarikan not found'], 404);
+                return $this->sendResponse($dataPenarikan, 'Withdrawal requested successfully.');
+            } else {
+                return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
-
-        $validated = $request->validate([
-            'id_rekeningorganisasi' => 'sometimes|exists:rekening_organisasi,id_rekeningorganisasi',
-            'jumlahdanaditarik' => 'sometimes|integer|min:1',
-            'tanggalpenarikan' => 'sometimes|date',
-            'buktipenarikan' => 'sometimes|string',
-        ]);
-
-        $penarikan->update($validated);
-
-        return response()->json(['message' => 'Penarikan updated successfully', 'data' => $penarikan], 200);
-    }
-
-    public function delete($id)
-    {
-        $penarikan = PenarikanOrganisasi::find($id);
-
-        if (!$penarikan) {
-            return response()->json(['message' => 'Penarikan not found'], 404);
-        }
-
-        $penarikan->delete();
-
-        return response()->json(['message' => 'Penarikan deleted successfully'], 200);
     }
 }
