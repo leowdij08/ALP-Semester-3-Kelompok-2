@@ -100,11 +100,10 @@ Route::controller(RekeningTemuController::class)->prefix("rekeningtemu")->group(
 });
 
 Route::controller(RekeningOrganisasiController::class)->prefix("rekeningorganisasi")->group(function(){
-    Route::get('{id}', "getbyID");
-    Route::get('search/{keyword}', "search");
-    Route::put('{idRekeingOrganisasi}', "update");
-    Route::delete('{idRekeningOrganisasi}', "delete");
-    Route::post('{idRekeningOrganisasi}', "create");
+    Route::get('', "getByPerusahaan");
+    Route::put('', "update");
+    Route::post('', "create");
+    Route::delete('', "delete");
 });
 
 Route::controller(PenarikanOrganisasiController::class)->prefix("penarikanorganisasi")->group(function() {
