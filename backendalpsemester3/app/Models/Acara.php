@@ -28,4 +28,9 @@ class Acara extends Model
     {
         return $this->belongsTo(UserOrganisasi::class, 'id_organisasi', 'id_organisasi');
     }
+
+    public function pembayarans()
+    {
+        return $this->hasMany(PembayaranPerusahaan::class, 'id_acara', 'id_acara');
+    }
 }
