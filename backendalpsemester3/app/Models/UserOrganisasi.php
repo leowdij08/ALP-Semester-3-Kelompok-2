@@ -39,6 +39,6 @@ class UserOrganisasi extends Model
 
     public function rekeningorganisasis()
     {
-        return $this->hasMany(RekeningOrganisasi::class, 'id_organisasi');
+        return $this->hasOne(RekeningOrganisasi::class, 'id_organisasi');
     }
 }
