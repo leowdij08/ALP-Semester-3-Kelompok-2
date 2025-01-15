@@ -92,15 +92,12 @@ Route::controller(RekeningPerusahaanController::class)->prefix("rekeningperusaha
 });
 
 Route::controller(RekeningTemuController::class)->prefix("rekeningtemu")->group(function () {
-    Route::get('{id}', "getById");
-    Route::get('search/{keyword}', "search");
-    Route::post('', "create");
-    Route::put('{idRekeningTemu}', "update");
-    Route::delete('{idRekeningTemu}', "delete");
+    Route::get('', "getRekening");
+    Route::put('', "update");
 });
 
 Route::controller(RekeningOrganisasiController::class)->prefix("rekeningorganisasi")->group(function(){
-    Route::get('', "getByPerusahaan");
+    Route::get('', "getByOrganisasi");
     Route::put('', "update");
     Route::post('', "create");
     Route::delete('', "delete");

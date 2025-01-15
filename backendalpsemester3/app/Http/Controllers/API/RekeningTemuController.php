@@ -12,115 +12,51 @@ use Exception;
 
 class RekeningTemuController extends BaseController
 {
-    public function getById($id): JsonResponse
+    public function getRekening(): JsonResponse
     {
         try {
             if (Auth::id()) {
-                $rekeningTemu = RekeningTemu::find($id);
+                $rekeningData = RekeningTemu::first()
+                    ->map(function ($item) {
+                        return [
+                            'nomorrekeningtemu' => $item->nomorrekeningtemu,
+                            'namabanktemu' => $item->namabanktemu,
+                            'pemilikrekeningtemu' => $item->pemilikrekeningtemu,
+                        ];
+                    });
 
-                if ($rekeningTemu) {
-                    return $this->sendResponse($rekeningTemu, 'RekeningTemu retrieved successfully.');
-                } else {
-                    return $this->sendError('Not Found.', ['error' => 'RekeningTemu not found.'], 404);
-                }
+                return $this->sendResponse($rekeningData, 'RekeningTemu retrieved successfully.');
             } else {
-                return $this->sendError('Unauthorized.', ['error' => 'Access denied. Please log in to view RekeningTemu.'], 401);
+                return $this->sendError('Unauthorized.', ['error' => 'Access denied. Please log in to view organization accounts.'], 401);
             }
         } catch (Exception $e) {
             return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
     }
 
-    public function search($keyword): JsonResponse
+    public function update(Request $request): JsonResponse
     {
         try {
             if (Auth::id()) {
-                $results = RekeningTemu::where('nomorrekeningtemu', 'like', "%$keyword%")
-                    ->get();
-
-                return $this->sendResponse($results, 'Search results retrieved successfully.');
-            } else {
-                return $this->sendError('Unauthorized.', ['error' => 'Access denied. Please log in to search RekeningTemu.'], 401);
-            }
-        } catch (Exception $e) {
-            return $this->sendError('Server Error.', $e->getMessage(), 500);
-        }
-    }
-
-    public function create(Request $request): JsonResponse
-    {
-        try {
-            if (Auth::id()) {
-                $validator = Validator::make($request->all(), [
-                    'nomorrekeningtemu' => 'required',
-                    'namabanktemu' => 'required|in:SEABANK,BCA,BCA Digital',
-                    'pemilikrekeningtemu' => 'required|max:45',
-                ]);
-
-                if ($validator->fails()) {
-                    return $this->sendError('Validation Error.', $validator->errors(), 400);
-                }
-
-                $rekeningTemu = RekeningTemu::create($request->all());
-
-                return $this->sendResponse($rekeningTemu, 'RekeningTemu created successfully.');
-            } else {
-                return $this->sendError('Unauthorized.', ['error' => 'Access denied. Please log in to create RekeningTemu.'], 401);
-            }
-        } catch (Exception $e) {
-            return $this->sendError('Server Error.', $e->getMessage(), 500);
-        }
-    }
-
-    public function update($idRekeningTemu, Request $request): JsonResponse
-    {
-        try {
-            if (Auth::id()) {
-                $rekeningTemu = RekeningTemu::find($idRekeningTemu);
-
-                if ($rekeningTemu) {
                     $validator = Validator::make($request->all(), [
                         'nomorrekeningtemu' => 'required',
-                        'namabanktemu' => 'required|in:SEABANK,BCA,BCA Digital',
-                        'pemilikrekeningtemu' => 'required|max:45',
+                        'namabanktemu' => 'required|in:BCA,BCA Digital,SEABANK,Mandiri,BNI,DBS',
+                        'pemilikrekeningtemu' => 'required',
                     ]);
 
                     if ($validator->fails()) {
                         return $this->sendError('Validation Error.', $validator->errors(), 400);
                     }
 
-                    $rekeningTemu->update($request->all());
+                    $rekeningTemu = RekeningTemu::first()->update([...$request->all(), "updated_at" => now()]);
 
                     return $this->sendResponse($rekeningTemu, 'RekeningTemu updated successfully.');
-                } else {
-                    return $this->sendError('Not Found.', ['error' => 'RekeningTemu not found.'], 404);
-                }
             } else {
-                return $this->sendError('Unauthorized.', ['error' => 'Access denied. Please log in to update RekeningTemu.'], 401);
+                return $this->sendError('Unauthorized.', ['error' => 'Access denied. Please log in to update organization accounts.'], 401);
             }
         } catch (Exception $e) {
             return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
     }
 
-    public function delete($idRekeningTemu): JsonResponse
-    {
-        try {
-            if (Auth::id()) {
-                $rekeningTemu = RekeningTemu::find($idRekeningTemu);
-
-                if ($rekeningTemu) {
-                    $rekeningTemu->delete();
-
-                    return $this->sendResponse(['isDeleted' => true], 'RekeningTemu deleted successfully.');
-                } else {
-                    return $this->sendError('Not Found.', ['error' => 'RekeningTemu not found.'], 404);
-                }
-            } else {
-                return $this->sendError('Unauthorized.', ['error' => 'Access denied. Please log in to delete RekeningTemu.'], 401);
-            }
-        } catch (Exception $e) {
-            return $this->sendError('Server Error.', $e->getMessage(), 500);
-        }
-    }
 }
