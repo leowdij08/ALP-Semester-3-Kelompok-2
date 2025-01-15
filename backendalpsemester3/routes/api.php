@@ -85,11 +85,10 @@ Route::controller(PembayaranPerusahaanController::class)->prefix("pembayaranperu
 });
 
 Route::controller(RekeningPerusahaanController::class)->prefix("rekeningperusahaaan")->group(function(){
-    Route::get('{id}', "getbyID");
-    Route::get('search/{keyword}', "search");
-    Route::put('{idRekeningPerusahaan}', "update");
-    Route::delete('{idRekeningPerusahaan}', "delete");
-    Route::post('{idRekeningPerusahaan}', "create");
+    Route::get('', "getByPerusahaan");
+    Route::put('', "update");
+    Route::post('', "create");
+    Route::delete('', "delete");
 });
 
 Route::controller(RekeningTemuController::class)->prefix("rekeningtemu")->group(function () {
