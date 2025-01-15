@@ -322,4 +322,92 @@ class AcaraController extends BaseController
             return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
     }
+
+    public function getByOrganisasi($filter = null, $idOrganisasi): JsonResponse
+    {
+        try {
+            if (Auth::id()) {
+                if($filter != null) $filtered = strtolower($filter) == "old" ? Acara::whereDate("tanggalacara", "<", now()) : Acara::whereDate("tanggalacara", ">=", now());
+                else $filtered = Acara::class;
+                $dataAcara = $filtered->where("id_organisasi", $idOrganisasi)->map(function ($acara) {
+                    $userOrganisasi = $acara->organisasis;
+                    $biayaDikumpulkan = array_sum(...PembayaranPerusahaan::where('id_acara', $acara->id_acara)->get()->map(function ($biaya){
+                        return $biaya->biayatotal;
+                    }));
+                    $biayaDibutuhkan = $acara->biayadibutuhkan <= $biayaDikumpulkan ? 0 : $acara->biayadibutuhkan - $biayaDikumpulkan;
+                    return [
+                        "id_acara" => $acara->id_acara,
+                        "nama_acara" => $acara->namaacara,
+                        "tanggal_acara" => $acara->tanggalacara,
+                        "lokasi_acara" => $acara->lokasiacara,
+                        "biaya_dibutuhkan" => $biayaDibutuhkan,
+                        "kegiatan_acara" => $acara->kegiatanacara,
+                        "kota_berlangsung" => $acara->kotaberlangsung,
+                        "poster_acara" => $acara->poster_event,
+                        "proposal" => $acara->proposal,
+                        "organisasi" => [
+                            "id_organisasi" => $userOrganisasi->id_organisasi,
+                            "nama_organisasi" => $userOrganisasi->namaorganisasi,
+                            "kota_domisili_organisasi" => $userOrganisasi->kotadomisiliorganisasi,
+                            "nomor_telepon_organisasi" => $userOrganisasi->nomorteleponorganisasi
+                        ]
+                    ];
+                });
+
+                return $this->sendResponse($dataAcara, 'Events retrieved successfully.');
+            } else {
+                return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
+        }
+    }
+
+    public function getHistoryOrganisasi($idOrganisasi): JsonResponse
+    {
+        try {
+            if (Auth::id()) {
+                $dataAcara = Acara::whereDate("tanggalacara", "<", now())->where("id_organisasi", $idOrganisasi)->map(function ($acara) {
+                    $userOrganisasi = $acara->organisasis;
+                    $biayaDikumpulkan = array_sum(...PembayaranPerusahaan::where('id_acara', $acara->id_acara)->get()->map(function ($biaya){
+                        return $biaya->biayatotal;
+                    }));
+                    $perusahaanKerjasama = PembayaranPerusahaan::where('id_acara', $acara->id_acara)->groupBy("id_rekeningperusahaan")->get()->map(function ($pembayaran){
+                        $perusahaan = $pembayaran->rekeningperusahaans->perusahaans;
+                        return [
+                            "namaPerusahaan" => $perusahaan->namaperusahaan,
+                            "jumlahSponsor" => array_sum(...PembayaranPerusahaan::where('id_acara', $acara->id_acara)->where("id_rekeningperusahaan", $pembayaran->rekeningperusahaans->id_rekeningperusahaan)->get()->map(function ($biaya){
+                                return $biaya->biayatotal;
+                            }))
+                        ];
+                    });
+                    return [
+                        "id_acara" => $acara->id_acara,
+                        "nama_acara" => $acara->namaacara,
+                        "tanggal_acara" => $acara->tanggalacara,
+                        "lokasi_acara" => $acara->lokasiacara,
+                        "biaya_dibutuhkan" => $acara->biayadibutuhkan,
+                        "biaya_dikumpulkan" => $biayaDikumpulkan,
+                        "kegiatan_acara" => $acara->kegiatanacara,
+                        "kota_berlangsung" => $acara->kotaberlangsung,
+                        "poster_acara" => $acara->poster_event,
+                        "proposal" => $acara->proposal,
+                        "organisasi" => [
+                            "id_organisasi" => $userOrganisasi->id_organisasi,
+                            "nama_organisasi" => $userOrganisasi->namaorganisasi,
+                            "kota_domisili_organisasi" => $userOrganisasi->kotadomisiliorganisasi,
+                            "nomor_telepon_organisasi" => $userOrganisasi->nomorteleponorganisasi
+                        ],
+                        "perusahaan_kerjasama" => $perusahaanKerjasama
+                    ];
+                });
+
+                return $this->sendResponse($dataAcara, 'Event history retrieved successfully.');
+            } else {
+                return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
+        }
+    }
 }
