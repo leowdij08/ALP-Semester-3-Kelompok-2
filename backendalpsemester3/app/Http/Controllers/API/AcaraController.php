@@ -4,11 +4,7 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
-use App\Models\User;
-use App\Models\UserOrganisasi;
-use App\Models\PenanggungJawabOrganisasi;
-use App\Models\UserPerusahaan;
-use App\Models\PenanggungJawabPerusahaan;
+use App\Models\PembayaranPerusahaan;
 use App\Models\Acara;
 use Illuminate\Support\Facades\Auth;
 use Validator;
@@ -22,15 +18,20 @@ class AcaraController extends BaseController
             if (Auth::id()) {
                 $dataAcara = Acara::all()->map(function ($acara) {
                     $userOrganisasi = $acara->organisasis;
+                    $biayaDikumpulkan = array_sum(...PembayaranPerusahaan::where('id_acara', $acara->id_acara)->get()->map(function ($biaya){
+                        return $biaya->biayatotal;
+                    }));
+                    $biayaDibutuhkan = $acara->biayadibutuhkan <= $biayaDikumpulkan ? 0 : $acara->biayadibutuhkan - $biayaDikumpulkan;
                     return [
                         "id_acara" => $acara->id_acara,
                         "nama_acara" => $acara->namaacara,
                         "tanggal_acara" => $acara->tanggalacara,
                         "lokasi_acara" => $acara->lokasiacara,
-                        "biaya_dibutuhkan" => $acara->biayadibutuhkan,
+                        "biaya_dibutuhkan" => $biayaDibutuhkan,
                         "kegiatan_acara" => $acara->kegiatanacara,
                         "kota_berlangsung" => $acara->kotaberlangsung,
                         "poster_acara" => $acara->poster_event,
+                        "proposal" => $acara->proposal,
                         "organisasi" => [
                             "id_organisasi" => $userOrganisasi->id_organisasi,
                             "nama_organisasi" => $userOrganisasi->namaorganisasi,
@@ -56,15 +57,20 @@ class AcaraController extends BaseController
                 if (Acara::where("id_acara", $idAcara)->count() > 0) {
                     $dataAcara = Acara::where("id_acara", $idAcara)->get()->map(function ($acara) {
                         $userOrganisasi = $acara->organisasis;
+                        $biayaDikumpulkan = array_sum(...PembayaranPerusahaan::where('id_acara', $acara->id_acara)->get()->map(function ($biaya){
+                            return $biaya->biayatotal;
+                        }));
+                        $biayaDibutuhkan = $acara->biayadibutuhkan <= $biayaDikumpulkan ? 0 : $acara->biayadibutuhkan - $biayaDikumpulkan;
                         return [
                             "id_acara" => $acara->id_acara,
                             "nama_acara" => $acara->namaacara,
                             "tanggal_acara" => $acara->tanggalacara,
                             "lokasi_acara" => $acara->lokasiacara,
-                            "biaya_dibutuhkan" => $acara->biayadibutuhkan,
+                            "biaya_dibutuhkan" => $biayaDibutuhkan,
                             "kegiatan_acara" => $acara->kegiatanacara,
                             "kota_berlangsung" => $acara->kotaberlangsung,
                             "poster_acara" => $acara->poster_event,
+                            "proposal" => $acara->proposal,
                             "organisasi" => [
                                 "id_organisasi" => $userOrganisasi->id_organisasi,
                                 "nama_organisasi" => $userOrganisasi->namaorganisasi,
@@ -97,15 +103,20 @@ class AcaraController extends BaseController
                     ->where("kegiatanacara", (isset($filters["kegiatan"]) ? "=" : "!="), (isset($filters["kegiatan"]) ? $filters["kegiatan"] : ""))
                     ->get()->map(function ($acara) {
                         $userOrganisasi = $acara->organisasis;
+                        $biayaDikumpulkan = array_sum(...PembayaranPerusahaan::where('id_acara', $acara->id_acara)->get()->map(function ($biaya){
+                            return $biaya->biayatotal;
+                        }));
+                        $biayaDibutuhkan = $acara->biayadibutuhkan <= $biayaDikumpulkan ? 0 : $acara->biayadibutuhkan - $biayaDikumpulkan;
                         return [
                             "id_acara" => $acara->id_acara,
                             "nama_acara" => $acara->namaacara,
                             "tanggal_acara" => $acara->tanggalacara,
                             "lokasi_acara" => $acara->lokasiacara,
-                            "biaya_dibutuhkan" => $acara->biayadibutuhkan,
+                            "biaya_dibutuhkan" => $biayaDibutuhkan,
                             "kegiatan_acara" => $acara->kegiatanacara,
                             "kota_berlangsung" => $acara->kotaberlangsung,
                             "poster_acara" => $acara->poster_event,
+                            "proposal" => $acara->proposal,
                             "organisasi" => [
                                 "id_organisasi" => $userOrganisasi->id_organisasi,
                                 "nama_organisasi" => $userOrganisasi->namaorganisasi,
@@ -153,18 +164,24 @@ class AcaraController extends BaseController
                             "kotaberlangsung" => $input['kotaBerlangsung'],
                         ];
                         if (isset($input['posterEvent'])) $data["poster_event"] = $input['posterEvent'];
+                        if (isset($input['proposal'])) $data["proposal"] = $input['proposal'];
                         Acara::where('id_acara', $idAcara)->update($data);
                         $dataAcara = Acara::where("id_acara", $idAcara)->get()->map(function ($acara) {
                             $userOrganisasi = $acara->organisasis;
+                            $biayaDikumpulkan = array_sum(...PembayaranPerusahaan::where('id_acara', $acara->id_acara)->get()->map(function ($biaya){
+                                return $biaya->biayatotal;
+                            }));
+                            $biayaDibutuhkan = $acara->biayadibutuhkan <= $biayaDikumpulkan ? 0 : $acara->biayadibutuhkan - $biayaDikumpulkan;
                             return [
                                 "id_acara" => $acara->id_acara,
                                 "nama_acara" => $acara->namaacara,
                                 "tanggal_acara" => $acara->tanggalacara,
                                 "lokasi_acara" => $acara->lokasiacara,
-                                "biaya_dibutuhkan" => $acara->biayadibutuhkan,
+                                "biaya_dibutuhkan" => $biayaDibutuhkan,
                                 "kegiatan_acara" => $acara->kegiatanacara,
                                 "kota_berlangsung" => $acara->kotaberlangsung,
                                 "poster_acara" => $acara->poster_event,
+                                "proposal" => $acara->proposal,
                                 "organisasi" => [
                                     "id_organisasi" => $userOrganisasi->id_organisasi,
                                     "nama_organisasi" => $userOrganisasi->namaorganisasi,
@@ -218,6 +235,7 @@ class AcaraController extends BaseController
                     "id_organisasi" => $idOrganisasi,
                 ];
                 if (isset($input['posterEvent'])) $data["poster_event"] = $input['posterEvent'];
+                if (isset($input['proposal'])) $data["proposal"] = $input['proposal'];
                 $acara = Acara::create($data);
                 $userOrganisasi = $acara->organisasis;
                 $dataAcara = [
@@ -229,6 +247,7 @@ class AcaraController extends BaseController
                     "kegiatan_acara" => $acara->kegiatanacara,
                     "kota_berlangsung" => $acara->kotaberlangsung,
                     "poster_acara" => $acara->poster_event,
+                    "proposal" => $acara->proposal,
                     "organisasi" => [
                         "id_organisasi" => $userOrganisasi->id_organisasi,
                         "nama_organisasi" => $userOrganisasi->namaorganisasi,
@@ -256,16 +275,21 @@ class AcaraController extends BaseController
                     ->where("kotaberlangsung", (isset($filters["lokasi"]) ? "=" : "!="), (isset($filters["lokasi"]) ? $filters["lokasi"] : ""))
                     ->where("kegiatanacara", (isset($filters["kegiatan"]) ? "=" : "!="), (isset($filters["kegiatan"]) ? $filters["kegiatan"] : ""))
                     ->get()->map(function ($acara) {
+                        $biayaDikumpulkan = array_sum(...PembayaranPerusahaan::where('id_acara', $acara->id_acara)->get()->map(function ($biaya){
+                            return $biaya->biayatotal;
+                        }));
+                        $biayaDibutuhkan = $acara->biayadibutuhkan <= $biayaDikumpulkan ? 0 : $acara->biayadibutuhkan - $biayaDikumpulkan;
                         return [
                             "id_acara" => $acara->id_acara,
                             "id_organisasi" => $acara->id_organisasi,
                             "nama_acara" => $acara->namaacara,
                             "tanggal_acara" => $acara->tanggalacara,
                             "lokasi_acara" => $acara->lokasiacara,
-                            "biaya_dibutuhkan" => $acara->biayadibutuhkan,
+                            "biaya_dibutuhkan" => $biayaDibutuhkan,
                             "kegiatan_acara" => $acara->kegiatanacara,
                             "kota_berlangsung" => $acara->kotaberlangsung,
                             "poster_acara" => $acara->poster_event,
+                            "proposal" => $acara->proposal,
                         ];
                     });
 

@@ -21,6 +21,7 @@ class Acara extends Model
         'biayadibutuhkan',
         'kegiatanacara',
         'kotaberlangsung',
+        'proposal',
     ];
 
     public function organisasis()

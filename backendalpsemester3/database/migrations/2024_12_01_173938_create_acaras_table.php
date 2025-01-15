@@ -18,6 +18,7 @@ class CreateAcarasTable extends Migration
             $table->enum('kegiatanacara', ['Gunung', 'Pantai', 'Hutan']);
             $table->enum('kotaberlangsung', ['Jakarta', 'Surabaya', 'Makassar']);
             $table->longtext('poster_event');
+            $table->longtext('proposal');
             $table->foreign('id_organisasi')->references('id_organisasi')->on('user_organisasi')->onDelete("cascade");
             $table->timestamps();
         });
