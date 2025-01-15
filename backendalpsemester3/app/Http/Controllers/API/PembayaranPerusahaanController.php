@@ -6,11 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\PembayaranPerusahaan;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
-use App\Models\User;
-use App\Models\UserOrganisasi;
-use App\Models\PenanggungJawabOrganisasi;
-use App\Models\UserPerusahaan;
-use App\Models\PenanggungJawabPerusahaan;
+use App\Models\Acara;
+use App\Models\RekeningPerusahaan;
 use Illuminate\Support\Facades\Auth;
 use Validator;
 use Illuminate\Http\JsonResponse;
@@ -118,56 +115,70 @@ class PembayaranPerusahaanController extends BaseController
 
     public function create(Request $request, $idAcara)
     {
-        $validator = Validator::make($request->all(), [
-            'id_rekeningperusahaan' => 'required|exists:rekening_perusahaan,id_rekeningperusahaan',
-            'id_acara' => 'required|exists:event_organisasi,id_acara',
-            'biayatotal' => 'required|integer',
-            'tanggalpembayaran' => 'required|date',
-            'buktipembayaran' => 'required|string',
-        ]);
+        try {
+            if (Auth::id()) {
+                if (Acara::where("id_acara", $idAcara)->count() > 0) {
+                    $validator = Validator::make($request->all(), [
+                        'biayaTotal' => 'required|regex:/[0-9]/',
+                        'buktiPembayaran' => 'required'
+                    ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+                    if ($validator->fails()) {
+                        return $this->sendError('Validation Error.', $validator->errors(), 400);
+                    }
+
+                    $input = $request->all();
+                    $rekening = RekeningPerusahaan::where("id_perusahaan", Auth::user()->perusahaan)->first();
+                    $data = [
+                        "biayatotal" => $input['biayaTotal'],
+                        "id_rekeningperusahaan" => $rekening->id_rekeningperusahaan,
+                        "id_acara" => $idAcara,
+                        "tanggalpembayaran" => now(),
+                        "buktipembayaran" => $input['buktiPembayaran']
+                    ];
+                    $pembayaran = PembayaranPerusahaan::create($data);
+                    $dataPembayaran = $pembayaran->get()->map(function ($item) {
+                        $rekening = $item->rekeningperusahaans;
+                        $acara = $item->acaras;
+                        $userOrganisasi = $acara->organisasis;
+                        return [
+                            "rekening" => [
+                                "idRekening" => $rekening->id_rekeningperusahaan,
+                                "namaBank" => $rekening->namabankperusahaan,
+                                "nomorRekening" => $rekening->nomorrekeningperusahaan,
+                                "namaPemilik" => $rekening->pemilikrekeningperusahaan
+                            ],
+                            "acara" => [
+                                "id_acara" => $acara->id_acara,
+                                "nama_acara" => $acara->namaacara,
+                                "tanggal_acara" => $acara->tanggalacara,
+                                "lokasi_acara" => $acara->lokasiacara,
+                                "biaya_dibutuhkan" => $acara->biayadibutuhkan,
+                                "kegiatan_acara" => $acara->kegiatanacara,
+                                "kota_berlangsung" => $acara->kotaberlangsung,
+                                "poster_acara" => $acara->poster_event,
+                                "organisasi" => [
+                                    "id_organisasi" => $userOrganisasi->id_organisasi,
+                                    "nama_organisasi" => $userOrganisasi->namaorganisasi,
+                                    "kota_domisili_organisasi" => $userOrganisasi->kotadomisiliorganisasi,
+                                    "nomor_telepon_organisasi" => $userOrganisasi->nomorteleponorganisasi
+                                ]
+                            ],
+                            "totalPembayaran" => $item->biayatotal,
+                            "tanggalPembayaran" => $item->tanggalpembayaran,
+                            "buktiPembayaran" => $item->buktipembayaran,
+                        ];
+                    });
+
+                    return $this->sendResponse($dataPembayaran, 'Payment created successfully.');
+                } else {
+                    return $this->sendError('Event Not Found.', ['error' => 'No Event With That ID Was Found'], 404);
+                }
+            } else {
+                return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
-
-        $pembayaran = PembayaranPerusahaan::create($request->all());
-
-        return response()->json($pembayaran, 201);
-    }
-    public function update(Request $request, $id)
-    {
-        $pembayaran = PembayaranPerusahaan::find($id);
-
-        if (!$pembayaran) {
-            return response()->json(['message' => 'Pembayaran not found'], 404);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'id_rekeningperusahaan' => 'sometimes|exists:rekening_perusahaan,id_rekeningperusahaan',
-            'id_acara' => 'sometimes|exists:event_organisasi,id_acara',
-            'biayatotal' => 'sometimes|integer',
-            'tanggalpembayaran' => 'sometimes|date',
-            'buktipembayaran' => 'sometimes|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        $pembayaran->update($request->all());
-
-        return response()->json($pembayaran, 200);
-    }
-    public function delete($id)
-    {
-        $pembayaran = PembayaranPerusahaan::find($id);
-
-        if (!$pembayaran) {
-            return response()->json(['message' => 'Pembayaran not found'], 404);
-        }
-
-        $pembayaran->delete();
-
-        return response()->json(['message' => 'Pembayaran deleted successfully'], 200);
     }
 }

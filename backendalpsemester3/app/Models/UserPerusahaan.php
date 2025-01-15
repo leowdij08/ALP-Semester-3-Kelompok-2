@@ -26,7 +26,7 @@ class UserPerusahaan extends Model
 
     public function rekeningperusahaans()
     {
-        return $this->hasMany(RekeningPerusahaan::class, 'id_perusahaan');
+        return $this->hasOne(RekeningPerusahaan::class, 'id_perusahaan');
     }
 
     public function penanggungjawabperusahaans()
