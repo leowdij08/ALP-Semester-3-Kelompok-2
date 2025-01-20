@@ -20,6 +20,7 @@ Route::controller(RegisterController::class)->group(function(){
     Route::post('register_organisasi', 'register_organisasi');
     Route::post('register_perusahaan', 'register_perusahaan');
     Route::post('login', 'login');
+    Route::post('logout', 'logout');
     Route::get('login', "error_login")->name("login");
 });
 

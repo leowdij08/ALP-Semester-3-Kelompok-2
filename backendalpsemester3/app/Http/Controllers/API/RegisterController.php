@@ -47,7 +47,7 @@ class RegisterController extends BaseController
 
             $input = $request->all();
             if (count(UserOrganisasi::where("namaorganisasi", $input['namaOrganisasi'])->get()) == 0
-            && count(User::where("level", "organisasi")->where("email", $input['email'])->get()) == 0) {
+            && count(User::where("email", $input['email'])->get()) == 0) {
                 $input['password'] = Hash::make($input['password']);
 
                 $user = new User;
@@ -112,7 +112,7 @@ class RegisterController extends BaseController
 
             $input = $request->all();
             if (count(UserPerusahaan::where("namaperusahaan", $input['namaPerusahaan'])->get()) == 0
-            && count(User::where("level", "perusahaan")->where("email", $input['email'])->get()) == 0) {
+            && count(User::where("email", $input['email'])->get()) == 0) {
                 $input['password'] = Hash::make($input['password']);
 
                 $user = new User;
@@ -172,6 +172,23 @@ class RegisterController extends BaseController
                 return $this->sendResponse($success, 'User login successfully.');
             } else {
                 return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
+        }
+    }
+
+    public function logout(Request $request): JsonResponse
+    {
+        try {
+            if (Auth::id()) {
+                $request->user()->tokens->each(function ($token) {
+                    $token->delete();
+                });
+
+                return $this->sendResponse(['status' => 'User Logged Out'], 'User Logout successfully.');
+            } else {
+                return $this->sendError('Bad Request.', ['error' => 'You are not logged in'], 400);
             }
         } catch (\Exception $e) {
             return $this->sendError('Server Error.', $e->getMessage(), 500);
