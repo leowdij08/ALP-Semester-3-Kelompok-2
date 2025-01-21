@@ -168,7 +168,7 @@ class RegisterController extends BaseController
                 $user = Auth::user();
                 $success['token'] =  $user->createToken('auth-token')->plainTextToken;
                 $success['level'] =  $user->level;
-                $success['user'] = $user;
+                $success['user'] = $user->level == "organisasi" ? $user->organisasi : $user->perusahaan;
 
                 return $this->sendResponse($success, 'User login successfully.');
             } else {
@@ -183,11 +183,12 @@ class RegisterController extends BaseController
     {
         try {
             if (Auth::id()) {
+                $level = Auth::user()->level;
                 $request->user()->tokens->each(function ($token) {
                     $token->delete();
                 });
 
-                return $this->sendResponse(['status' => 'User Logged Out'], 'User Logout successfully.');
+                return $this->sendResponse(['status' => 'User Logged Out', 'level' => $level], 'User Logout successfully.');
             } else {
                 return $this->sendError('Bad Request.', ['error' => 'You are not logged in'], 400);
             }
