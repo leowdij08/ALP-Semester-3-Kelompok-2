@@ -22,6 +22,6 @@ class PenanggungJawabOrganisasi extends Model
 
     public function organisasis()
     {
-        return $this->belongsTo(UserOrganisasi::class, 'id_organisasi');
+        return $this->hasOne(UserOrganisasi::class, 'id_organisasi');
     }
 }

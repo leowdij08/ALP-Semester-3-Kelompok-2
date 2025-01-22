@@ -229,5 +229,5 @@ class ChatController extends BaseController
             return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
     }
-    
+
 }

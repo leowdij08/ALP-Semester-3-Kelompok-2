@@ -241,21 +241,37 @@ class RegisterController extends BaseController
                     case "perusahaan":
                         $userData = UserPerusahaan::where('id_user', $user->id)
                             ->first();
+                        $penanggungJawab = $userData->penanggungjawab;
                         $datas = [
                             "id_perusahaan" => $userData->id_perusahaan,
                             "namaPerusahaan" => $userData->namaperusahaan,
+                            "email" => $user->email,
                             "kotaDomisiliPerusahaan" => $userData->kotadomisiliperusahaan,
                             "nomorTeleponPerusahaan" => $userData->nomorteleponperusahaan,
+                            "penanggungJawab" => [
+                                "namaLengkap" => $penanggungJawab->namalengkappjp,
+                                "tanggalLahir" => $penanggungJawab->tanggallahirpjp,
+                                "email" => $penanggungJawab->emailpjp,
+                                "alamatLengkap" => $penanggungJawab->alamatlengkappjp
+                            ]
                         ];
                         break;
                     case "organisasi":
                         $userData = UserOrganisasi::where('id_user', $user->id)
                             ->first();
+                        $penanggungJawab = $userData->penanggungjawab;
                         $datas = [
                             "id_organisasi" => $userData->id_organisasi,
                             "namaOrganisasi" => $userData->namaorganisasi,
+                            "email" => $user->email,
                             "kotaDomisiliOrganisasi" => $userData->kotadomisiliorganisasi,
                             "nomorTeleponOrganisasi" => $userData->nomorteleponorganisasi,
+                            "penanggungJawab" => [
+                                "namaLengkap" => $penanggungJawab->namalengkappjo,
+                                "tanggalLahir" => $penanggungJawab->tanggallahirpjo,
+                                "email" => $penanggungJawab->emailpjo,
+                                "alamatLengkap" => $penanggungJawab->alamatlengkappjo
+                            ]
                         ];
                         break;
                 }

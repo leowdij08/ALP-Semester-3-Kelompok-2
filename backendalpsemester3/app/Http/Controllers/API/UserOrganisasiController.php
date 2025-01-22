@@ -11,6 +11,32 @@ use Illuminate\Http\JsonResponse;
 
 class UserOrganisasiController extends BaseController
 {
+    public function getAll(): JsonResponse
+    {
+        try {
+            if (Auth::id()) {
+                $userData = UserOrganisasi::all()
+                    ->map(
+                        function ($item) {
+                            return [
+                                'id_user' => $item->id_perusahaan,
+                                'namaperusahaan' => $item->namaperusahaan,
+                                'kotadomisiliperusahaan' => $item->kotadomisiliperusahaan,
+                                'nomorteleponperusahaan' => $item->nomorteleponperusahaan,
+                            ];
+                        }
+                    );
+
+
+                return $this->sendResponse($userData, 'User data retrieved successfully.');
+            } else {
+                return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
+        }
+    }
+
     public function getbyID($id, Request $request): JsonResponse
     {
         try {
@@ -82,7 +108,7 @@ class UserOrganisasiController extends BaseController
                     "kotadomisiliorganisasi" => $input['kotadomisiliorganisasi'],
                     "nomorteleponorganisasi" => $input['nomorteleponorganisasi'],
                 ];
-                $userOrganisasi->update($data);
+                UserOrganisasi::where('id_user', Auth::user()->id)->update($data);
                 $dataOrganisasi = $userOrganisasi->get()->map(function ($Organisasi) {
                     return [
                         'id_user' => $Organisasi->id_organisasi,

@@ -22,6 +22,6 @@ class PenanggungJawabPerusahaan extends Model
 
     public function perusahaans()
     {
-        return $this->belongsTo(UserPerusahaan::class, 'id_perusahaan');
+        return $this->hasOne(UserPerusahaan::class, 'id_perusahaan');
     }
 }

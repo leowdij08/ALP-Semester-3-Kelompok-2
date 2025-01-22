@@ -34,7 +34,7 @@ class UserOrganisasi extends Model
 
     public function penanggungjawab()
     {
-        return $this->hasOne(PenanggungJawabOrganisasi::class, 'id_organisasi');
+        return $this->belongsTo(PenanggungJawabOrganisasi::class, 'id_organisasi');
     }
 
     public function rekeningorganisasis()

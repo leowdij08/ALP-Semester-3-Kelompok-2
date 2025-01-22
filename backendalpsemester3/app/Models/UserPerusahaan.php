@@ -29,8 +29,8 @@ class UserPerusahaan extends Model
         return $this->hasOne(RekeningPerusahaan::class, 'id_perusahaan');
     }
 
-    public function penanggungjawabperusahaans()
+    public function penanggungjawab()
     {
-        return $this->hasOne(PenanggungJawabPerusahaan::class, 'id_perusahaan');
+        return $this->belongsTo(PenanggungJawabPerusahaan::class, 'id_perusahaan');
     }
 }
