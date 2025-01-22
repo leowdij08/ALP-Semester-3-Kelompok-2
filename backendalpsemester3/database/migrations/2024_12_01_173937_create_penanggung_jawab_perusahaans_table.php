@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class CreatePenanggungJawabPerusahaansTable extends Migration
 {
@@ -26,9 +27,10 @@ class CreatePenanggungJawabPerusahaansTable extends Migration
             $table->date('tanggallahirpjp');
             $table->string('emailpjp', 45);
             $table->string('alamatlengkappjp', 45);
-            $table->longtext('ktppjp');
             $table->timestamps();
         });
+
+        DB::statement("ALTER TABLE penanggung_jawab_perusahaan ADD ktppjp LONGBLOB");
     }
 
     public function down()

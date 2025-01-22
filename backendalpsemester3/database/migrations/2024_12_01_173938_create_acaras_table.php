@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class CreateAcarasTable extends Migration
 {
@@ -17,8 +18,6 @@ class CreateAcarasTable extends Migration
             $table->integer('biayadibutuhkan');
             $table->enum('kegiatanacara', ['Gunung', 'Pantai', 'Hutan']);
             $table->enum('kotaberlangsung', ['Jakarta', 'Surabaya', 'Makassar']);
-            $table->longtext('poster_event');
-            $table->longtext('proposal');
             $table->foreign('id_organisasi')->references('id_organisasi')->on('user_organisasi')->onDelete("cascade");
             $table->timestamps();
         });
@@ -31,6 +30,8 @@ class CreateAcarasTable extends Migration
             $table->time('waktuselesai');
             $table->timestamps();
         });
+        DB::statement("ALTER TABLE event_organisasi ADD poster_event LONGBLOB");
+        DB::statement("ALTER TABLE event_organisasi ADD proposal LONGBLOB");
     }
 
     public function down()

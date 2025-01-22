@@ -39,6 +39,7 @@ class RegisterController extends BaseController
                 'tanggalLahirPenanggungJawab' => 'required|date|date_format:Y-m-d|before:today',
                 'alamatLengkapPenanggungJawab' => 'required',
                 'emailPenanggungJawab' => 'required|email',
+                'ktpPenanggungJawab' => 'required'
             ]);
 
             if ($validator->fails()) {
@@ -46,8 +47,10 @@ class RegisterController extends BaseController
             }
 
             $input = $request->all();
-            if (count(UserOrganisasi::where("namaorganisasi", $input['namaOrganisasi'])->get()) == 0
-            && count(User::where("email", $input['email'])->get()) == 0) {
+            if (
+                count(UserOrganisasi::where("namaorganisasi", $input['namaOrganisasi'])->get()) == 0
+                && count(User::where("email", $input['email'])->get()) == 0
+            ) {
                 $input['password'] = Hash::make($input['password']);
 
                 $user = new User;
@@ -69,13 +72,20 @@ class RegisterController extends BaseController
                 $penanggungJawab->alamatlengkappjo = $input['alamatLengkapPenanggungJawab'];
                 $penanggungJawab->emailpjo = $input['emailPenanggungJawab'];
                 $penanggungJawab->id_organisasi = $organisasi->id;
-                $penanggungJawab->ktppjo = "pathToFile";
+                $penanggungJawab->ktppjo = $input['ktpPenanggungJawab'];
                 $penanggungJawab->save();
 
                 $success['email'] =  $input['email'];
                 $success['level'] =  $user->level;
                 $success['dataOrganisasi'] = $organisasi;
-                $success['dataPenanggungJawab'] = $penanggungJawab;
+                $success['dataPenanggungJawab']['namalengkappjo'] = $penanggungJawab->namalengkappjo;
+                $success['dataPenanggungJawab']['tanggallahirpjo'] = $penanggungJawab->tanggallahirpjo;
+                $success['dataPenanggungJawab']['alamatlengkappjo'] = $penanggungJawab->alamatlengkappjo;
+                $success['dataPenanggungJawab']['emailpjo'] = $penanggungJawab->emailpjo;
+                $success['dataPenanggungJawab']['id_organisasi'] = $penanggungJawab->id_organisasi;
+                $success['dataPenanggungJawab']['id'] = $penanggungJawab->id;
+                $success['dataPenanggungJawab']['updated_at'] = $penanggungJawab->updated_at;
+                $success['dataPenanggungJawab']['created_at'] = $penanggungJawab->created_at;
 
                 return $this->sendResponse($success, 'Organisation registered successfully.');
             } else {
@@ -104,6 +114,7 @@ class RegisterController extends BaseController
                 'tanggalLahirPenanggungJawab' => 'required|date|date_format:Y-m-d|before:today',
                 'alamatLengkapPenanggungJawab' => 'required',
                 'emailPenanggungJawab' => 'required|email',
+                'ktpPenanggungJawab' => 'required'
             ]);
 
             if ($validator->fails()) {
@@ -111,8 +122,10 @@ class RegisterController extends BaseController
             }
 
             $input = $request->all();
-            if (count(UserPerusahaan::where("namaperusahaan", $input['namaPerusahaan'])->get()) == 0
-            && count(User::where("email", $input['email'])->get()) == 0) {
+            if (
+                count(UserPerusahaan::where("namaperusahaan", $input['namaPerusahaan'])->get()) == 0
+                && count(User::where("email", $input['email'])->get()) == 0
+            ) {
                 $input['password'] = Hash::make($input['password']);
 
                 $user = new User;
@@ -134,13 +147,20 @@ class RegisterController extends BaseController
                 $penanggungJawab->alamatlengkappjp = $input['alamatLengkapPenanggungJawab'];
                 $penanggungJawab->emailpjp = $input['emailPenanggungJawab'];
                 $penanggungJawab->id_perusahaan = $perusahaan->id;
-                $penanggungJawab->ktppjp = "pathToFile";
+                $penanggungJawab->ktppjp = $input['ktpPenanggungJawab'];
                 $penanggungJawab->save();
 
                 $success['email'] =  $input['email'];
                 $success['level'] =  $user->level;
                 $success['dataPerusahaan'] = $perusahaan;
-                $success['dataPenanggungJawab'] = $penanggungJawab;
+                $success['dataPenanggungJawab']['namalengkappjp'] = $penanggungJawab->namalengkappjp;
+                $success['dataPenanggungJawab']['tanggallahirpjp'] = $penanggungJawab->tanggallahirpjp;
+                $success['dataPenanggungJawab']['alamatlengkappjp'] = $penanggungJawab->alamatlengkappjp;
+                $success['dataPenanggungJawab']['emailpjp'] = $penanggungJawab->emailpjp;
+                $success['dataPenanggungJawab']['id_perusahaan'] = $penanggungJawab->id_perusahaan;
+                $success['dataPenanggungJawab']['id'] = $penanggungJawab->id;
+                $success['dataPenanggungJawab']['updated_at'] = $penanggungJawab->updated_at;
+                $success['dataPenanggungJawab']['created_at'] = $penanggungJawab->created_at;
 
                 return $this->sendResponse($success, 'User Perusahaan register successfully.');
             } else {
@@ -189,6 +209,20 @@ class RegisterController extends BaseController
                 });
 
                 return $this->sendResponse(['status' => 'User Logged Out', 'level' => $level], 'User Logout successfully.');
+            } else {
+                return $this->sendError('Bad Request.', ['error' => 'You are not logged in'], 400);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
+        }
+    }
+
+    public function getSession(Request $request): JsonResponse
+    {
+        try {
+            if (Auth::id()) {
+                $level = Auth::user()->level;
+                return $this->sendResponse(['level' => $level], 'User Session Retrieved successfully.');
             } else {
                 return $this->sendError('Bad Request.', ['error' => 'You are not logged in'], 400);
             }
