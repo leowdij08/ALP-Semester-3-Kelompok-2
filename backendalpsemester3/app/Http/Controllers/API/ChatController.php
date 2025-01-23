@@ -129,6 +129,89 @@ class ChatController extends BaseController
         }
     }
 
+    public function getByTemanChat($idTemanChat): JsonResponse
+    {
+        try {
+            if (Auth::id()) {
+                if (Auth::user()->level == "perusahaan") {
+                    $chat = Chat::where("id_perusahaan", UserPerusahaan::where("id_user", Auth::user()->id)->first()->id_perusahaan)
+                        ->where("id_organisasi", $idTemanChat);
+                    if ($chat->count() > 0) {
+                        $chat = $chat->first();
+                        $idChat = $chat->id_chat;
+                        PesanChat::where("id_chat", $idChat)->where("pengirimisperusahaan", false)->update(['dibaca' => true, 'waktubaca' => now()]);
+                        $dataChat = PesanChat::where("id_chat", $idChat)->get()->map(function ($chat) {
+                            $lampiran = $chat->lampirans;
+                            return [
+                                "pengirimIsSelf" => !!$chat->pengirimisperusahaan,
+                                "waktu_kirim" => $chat->waktukirim,
+                                "dibaca" => $chat->dibaca,
+                                "waktu_baca" => $chat->dibaca ? $chat->waktubaca : null,
+                                "isi_pesan" => $chat->isipesan,
+                                "lampiran" => $lampiran == null ? null : ["tipeLampiran" => $lampiran->tipelampiran, "namaFile" => $lampiran->namafle, "urlfile" => $lampiran->urlfile]
+                            ];
+                        });
+                    } else {
+                        $chat = Chat::create(['id_organisasi' => $idTemanChat, 'id_perusahaan' => UserPerusahaan::where("id_user", Auth::user()->id)->first()->id_perusahaan]);
+                        $idChat = $chat->id_chat;
+                        PesanChat::where("id_chat", $idChat)->where("pengirimisperusahaan", false)->update(['dibaca' => true, 'waktubaca' => now()]);
+                        $dataChat = PesanChat::where("id_chat", $idChat)->get()->map(function ($chat) {
+                            $lampiran = $chat->lampirans;
+                            return [
+                                "pengirimIsSelf" => !!$chat->pengirimisperusahaan,
+                                "waktu_kirim" => $chat->waktukirim,
+                                "dibaca" => $chat->dibaca,
+                                "waktu_baca" => $chat->dibaca ? $chat->waktubaca : null,
+                                "isi_pesan" => $chat->isipesan,
+                                "lampiran" => $lampiran == null ? null : ["tipeLampiran" => $lampiran->tipelampiran, "namaFile" => $lampiran->namafle, "urlfile" => $lampiran->urlfile]
+                            ];
+                        });
+                    }
+                } else {
+                    $chat = Chat::where("id_organisasi", UserOrganisasi::where("id_user", Auth::user()->id)->first()->id_organisasi)
+                        ->where("id_perusahaan", $idTemanChat);
+                    if ($chat->count() > 0) {
+                        $chat = $chat->first();
+                        $idChat = $chat->id_chat;
+                        PesanChat::where("id_chat", $idChat)->where("pengirimisperusahaan", true)->update(['dibaca' => true, 'waktubaca' => now()]);
+                        $dataChat = PesanChat::where("id_chat", $idChat)->get()->map(function ($chat) {
+                            $lampiran = $chat->lampirans;
+                            return [
+                                "pengirimIsSelf" => !$chat->pengirimisperusahaan,
+                                "waktu_kirim" => $chat->waktukirim,
+                                "dibaca" => $chat->dibaca,
+                                "waktu_baca" => $chat->dibaca ? $chat->waktubaca : null,
+                                "isi_pesan" => $chat->isipesan,
+                                "lampiran" => $lampiran == null ? null : ["tipeLampiran" => $lampiran->tipelampiran, "namaFile" => $lampiran->namafle, "urlfile" => $lampiran->urlfile]
+                            ];
+                        });
+                    } else {
+                        $chat = Chat::create(['id_perusahaan' => $idTemanChat, 'id_organisasi' => UserOrganisasi::where("id_user", Auth::user()->id)->first()->id_organisasi]);
+                        $idChat = $chat->id_chat;
+                        PesanChat::where("id_chat", $idChat)->where("pengirimisperusahaan", true)->update(['dibaca' => true, 'waktubaca' => now()]);
+                        $dataChat = PesanChat::where("id_chat", $idChat)->get()->map(function ($chat) {
+                            $lampiran = $chat->lampirans;
+                            return [
+                                "pengirimIsSelf" => !$chat->pengirimisperusahaan,
+                                "waktu_kirim" => $chat->waktukirim,
+                                "dibaca" => $chat->dibaca,
+                                "waktu_baca" => $chat->dibaca ? $chat->waktubaca : null,
+                                "isi_pesan" => $chat->isipesan,
+                                "lampiran" => $lampiran == null ? null : ["tipeLampiran" => $lampiran->tipelampiran, "namaFile" => $lampiran->namafle, "urlfile" => $lampiran->urlfile]
+                            ];
+                        });
+                    }
+                }
+
+                return $this->sendResponse(['dataChat' => $dataChat, 'id_chat' => $idChat, 'nama_teman_chat' => $chat->organisasi->namaorganisasi], 'Chat history retrieved successfully.');
+            } else {
+                return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
+        }
+    }
+
     public function sendChat(Request $request, $idPenerima): JsonResponse
     {
         try {
@@ -235,5 +318,4 @@ class ChatController extends BaseController
             return $this->sendError('Server Error.', $e->getMessage(), 500);
         }
     }
-
 }

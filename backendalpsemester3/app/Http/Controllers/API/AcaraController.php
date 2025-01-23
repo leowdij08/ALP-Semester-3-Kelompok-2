@@ -101,7 +101,7 @@ class AcaraController extends BaseController
                             return $biaya->biayatotal;
                         })) : 0;
                         $biayaDibutuhkan = $acara->biayadibutuhkan <= $biayaDikumpulkan ? 0 : $acara->biayadibutuhkan - $biayaDikumpulkan;
-                        $perusahaanKerjasama = PembayaranPerusahaan::where('id_acara', $acara->id_acara)->groupBy("id_rekeningperusahaan")->get()->map(function ($pembayaran) {
+                        $perusahaanKerjasama = PembayaranPerusahaan::where('id_acara', $acara->id_acara)->count() > 0 ? PembayaranPerusahaan::where('id_acara', $acara->id_acara)->groupBy("id_rekeningperusahaan")->get()->map(function ($pembayaran) {
                             $perusahaan = $pembayaran->rekeningperusahaans->perusahaans;
                             return [
                                 "namaPerusahaan" => $perusahaan->namaperusahaan,
@@ -109,7 +109,7 @@ class AcaraController extends BaseController
                                     return $biaya->biayatotal;
                                 }))
                             ];
-                        });
+                        }) : [];
                         return [
                             "id_acara" => $acara->id_acara,
                             "nama_acara" => $acara->namaacara,
@@ -427,7 +427,7 @@ class AcaraController extends BaseController
                         $biayaDikumpulkan = PembayaranPerusahaan::where('id_acara', $acara->id_acara)->count() > 0 ? array_sum(...PembayaranPerusahaan::where('id_acara', $acara->id_acara)->get()->map(function ($biaya) {
                             return $biaya->biayatotal;
                         })) : 0;
-                        $perusahaanKerjasama = PembayaranPerusahaan::where('id_acara', $acara->id_acara)->groupBy("id_rekeningperusahaan")->get()->map(function ($pembayaran) {
+                        $perusahaanKerjasama = PembayaranPerusahaan::where('id_acara', $acara->id_acara)->count() > 0 ? PembayaranPerusahaan::where('id_acara', $acara->id_acara)->groupBy("id_rekeningperusahaan")->get()->map(function ($pembayaran) {
                             $perusahaan = $pembayaran->rekeningperusahaans->perusahaans;
                             return [
                                 "namaPerusahaan" => $perusahaan->namaperusahaan,
@@ -435,7 +435,7 @@ class AcaraController extends BaseController
                                     return $biaya->biayatotal;
                                 }))
                             ];
-                        });
+                        }) : [];
                         return [
                             "id_acara" => $acara->id_acara,
                             "nama_acara" => $acara->namaacara,
@@ -480,7 +480,7 @@ class AcaraController extends BaseController
                         $biayaDikumpulkan = array_sum(...PembayaranPerusahaan::where('id_acara', $acara->id_acara)->get()->map(function ($biaya) {
                             return $biaya->biayatotal;
                         }));
-                        $perusahaanKerjasama = PembayaranPerusahaan::where('id_acara', $acara->id_acara)->groupBy("id_rekeningperusahaan")->get()->map(function ($pembayaran) {
+                        $perusahaanKerjasama = PembayaranPerusahaan::where('id_acara', $acara->id_acara)->count() > 0 ? PembayaranPerusahaan::where('id_acara', $acara->id_acara)->groupBy("id_rekeningperusahaan")->get()->map(function ($pembayaran) {
                             $perusahaan = $pembayaran->rekeningperusahaans->perusahaans;
                             return [
                                 "namaPerusahaan" => $perusahaan->namaperusahaan,
@@ -488,7 +488,7 @@ class AcaraController extends BaseController
                                     return $biaya->biayatotal;
                                 }))
                             ];
-                        });
+                        }) : [];
                         return [
                             "id_acara" => $acara->id_acara,
                             "nama_acara" => $acara->namaacara,

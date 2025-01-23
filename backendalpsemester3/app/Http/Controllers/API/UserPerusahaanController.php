@@ -23,6 +23,7 @@ class UserPerusahaanController extends BaseController
                                 'namaperusahaan' => $item->namaperusahaan,
                                 'kotadomisiliperusahaan' => $item->kotadomisiliperusahaan,
                                 'nomorteleponperusahaan' => $item->nomorteleponperusahaan,
+                                'emailperusahaan' => $item->users->email
                             ];
                         }
                     );
@@ -50,6 +51,7 @@ class UserPerusahaanController extends BaseController
                                 'namaperusahaan' => $item->namaperusahaan,
                                 'kotadomisiliperusahaan' => $item->kotadomisiliperusahaan,
                                 'nomorteleponperusahaan' => $item->nomorteleponperusahaan,
+                                'emailperusahaan' => $item->users->email
                             ];
                         }
                     );

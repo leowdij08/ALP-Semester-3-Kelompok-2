@@ -49,6 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('', "getAll");
         Route::get('{idChat}', "getById");
         Route::post('{idPenerima}', "sendChat");
+        Route::get('byTeman/{idTemanChat}', "getByTemanChat");
     });
     Route::controller(UserPerusahaanController::class)->prefix("perusahaan")->group(function () {
         Route::get('', "getAll");
