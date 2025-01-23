@@ -23,12 +23,12 @@ class ChatController extends BaseController
         try {
             if (Auth::id()) {
                 if (Auth::user()->level == "perusahaan") {
-                    $perusahaan = Auth::user()->perusahaan;
-                    $chat = Chat::where("id_perusahaan", $perusahaan->id_perusahaan)->all()->map(function ($detailChat) {
+                    $perusahaan = UserPerusahaan::where("id_user", Auth::user()->id)->first();
+                    $chat = Chat::where("id_perusahaan", $perusahaan->id_perusahaan)->get()->map(function ($detailChat) {
                         $unreadCount = PesanChat::where("id_chat", $detailChat->id_chat)->where("pengirimisperusahaan", false)->where("dibaca", false)->count();
-                        $lastPesanChat = PesanChat::where("id_chat", $detailChat->id_chat)->orderBy("waktukirim", "desc")->first()->map(function ($pesanChat) {
+                        $lastPesanChat = PesanChat::where("id_chat", $detailChat->id_chat)->orderBy("waktukirim", "desc")->limit(1)->get()->map(function ($pesanChat) {
                             return [
-                                "pengirimIsSelf" => $pesanChat->pengirimisperusahaan,
+                                "pengirimIsSelf" => !!$pesanChat->pengirimisperusahaan,
                                 "waktu_kirim" => $pesanChat->waktukirim,
                                 "dibaca" => $pesanChat->dibaca,
                                 "waktu_baca" => $pesanChat->dibaca ? $pesanChat->waktubaca : null,
@@ -45,9 +45,9 @@ class ChatController extends BaseController
                     });
                 } else {
                     $organisasi = Auth::user()->organisasi;
-                    $chat = Chat::where("id_organisasi", $organisasi->id_organisasi)->all()->map(function ($detailChat) {
-                        $unreadCount = PesanChat::where("id_chat", $detailChat->id_chat)->where("pengirimisperusahaan", false)->where("dibaca", false)->count();
-                        $lastPesanChat = PesanChat::where("id_chat", $detailChat->id_chat)->orderBy("waktukirim", "desc")->first()->map(function ($pesanChat) {
+                    $chat = Chat::where("id_organisasi", $organisasi->id_organisasi)->get()->map(function ($detailChat) {
+                        $unreadCount = PesanChat::where("id_chat", $detailChat->id_chat)->where("pengirimisperusahaan", true)->where("dibaca", false)->count();
+                        $lastPesanChat = PesanChat::where("id_chat", $detailChat->id_chat)->orderBy("waktukirim", "desc")->limit(1)->get()->map(function ($pesanChat) {
                             return [
                                 "pengirimIsSelf" => !$pesanChat->pengirimisperusahaan,
                                 "waktu_kirim" => $pesanChat->waktukirim,
@@ -79,26 +79,28 @@ class ChatController extends BaseController
     {
         try {
             if (Auth::id()) {
-                $chat = Chat::where("id_chat", $idChat);
+                $chat = Chat::where("id_chat", $idChat)->first();
                 if ($chat->count() > 0) {
                     if (Auth::user()->level == "perusahaan") {
-                        if ($chat->perusahaans->id_user == Auth::user()->id) {
+                        if ($chat->perusahaan->id_user == Auth::user()->id) {
+                            PesanChat::where("id_chat", $idChat)->where("pengirimisperusahaan", false)->update(['dibaca' => true, 'waktubaca' => now()]);
                             $dataChat = PesanChat::where("id_chat", $idChat)->get()->map(function ($chat) {
                                 $lampiran = $chat->lampirans;
                                 return [
-                                    "pengirimIsSelf" => $chat->pengirimisperusahaan,
+                                    "pengirimIsSelf" => !!$chat->pengirimisperusahaan,
                                     "waktu_kirim" => $chat->waktukirim,
                                     "dibaca" => $chat->dibaca,
                                     "waktu_baca" => $chat->dibaca ? $chat->waktubaca : null,
                                     "isi_pesan" => $chat->isipesan,
-                                    "lampiran" => ["tipeLampiran" => $lampiran->tipelampiran, "namaFile" => $lampiran->namafle, "urlfile" => $lampiran->urlfile]
+                                    "lampiran" => $lampiran == null ? null : ["tipeLampiran" => $lampiran->tipelampiran, "namaFile" => $lampiran->namafle, "urlfile" => $lampiran->urlfile]
                                 ];
                             });
                         } else {
                             return $this->sendError('Forbidden.', ['error' => 'Not Your Chat'], 403);
                         }
                     } else {
-                        if ($chat->organisasis->id_user == Auth::user()->id) {
+                        if ($chat->organisasi->id_user == Auth::user()->id) {
+                            PesanChat::where("id_chat", $idChat)->where("pengirimisperusahaan", true)->update(['dibaca' => true, 'waktubaca' => now()]);
                             $dataChat = PesanChat::where("id_chat", $idChat)->get()->map(function ($chat) {
                                 $lampiran = $chat->lampirans;
                                 return [
@@ -107,7 +109,7 @@ class ChatController extends BaseController
                                     "dibaca" => $chat->dibaca,
                                     "waktu_baca" => $chat->dibaca ? $chat->waktubaca : null,
                                     "isi_pesan" => $chat->isipesan,
-                                    "lampiran" => ["tipeLampiran" => $lampiran->tipelampiran, "namaFile" => $lampiran->namafle, "urlfile" => $lampiran->urlfile]
+                                    "lampiran" => $lampiran == null ? null : ["tipeLampiran" => $lampiran->tipelampiran, "namaFile" => $lampiran->namafle, "urlfile" => $lampiran->urlfile]
                                 ];
                             });
                         } else {
@@ -144,17 +146,19 @@ class ChatController extends BaseController
                 if ($user->level == "perusahaan") {
                     if (UserOrganisasi::where('id_organisasi', $idPenerima)->count() > 0) {
                         $target = UserOrganisasi::where('id_organisasi', $idPenerima)->first();
-                        $chat = Chat::where("id_perusahaan", $user->perusahaan->id_perusahaan)->where("id_organisasi", $idPenerima);
+                        $chat = Chat::where("id_perusahaan", UserPerusahaan::where("id_user", $user->id)->first()->id_perusahaan)->where("id_organisasi", $idPenerima);
                         if ($chat->count() == 0) {
                             $dataChat = Chat::create([
-                                "id_perusahaan" => $user->perusahaan->id_perusahaan,
+                                "id_perusahaan" => UserPerusahaan::where("id_user", $user->id)->first()->id_perusahaan,
                                 "id_organisasi" => $idPenerima
                             ]);
+                        } else {
+                            $dataChat = $chat->first();
                         }
                         $pesan = PesanChat::create([
                             "id_chat" => $dataChat->id_chat,
                             "pengirimisperusahaan" => true,
-                            "waktu_kirim" => now(),
+                            "waktukirim" => now(),
                             "dibaca" => false,
                             "waktubaca" => null,
                             "isipesan" => $input['isiPesan']
@@ -183,17 +187,19 @@ class ChatController extends BaseController
                 } else {
                     if (UserPerusahaan::where('id_perusahaan', $idPenerima)->count() > 0) {
                         $target = UserPerusahaan::where('id_perusahaan', $idPenerima)->first();
-                        $chat = Chat::where("id_organisasi", $user->perusahaan->id_perusahaan)->where("id_perusahaan", $idPenerima);
+                        $chat = Chat::where("id_organisasi", $user->organisasi->id_organisasi)->where("id_perusahaan", $idPenerima);
                         if ($chat->count() == 0) {
                             $dataChat = Chat::create([
-                                "id_organisasi" => $user->perusahaan->id_perusahaan,
+                                "id_organisasi" => $user->organisasi->id_organisasi,
                                 "id_perusahaan" => $idPenerima
                             ]);
+                        } else {
+                            $dataChat = $chat->first();
                         }
                         $pesan = PesanChat::create([
                             "id_chat" => $dataChat->id_chat,
                             "pengirimisperusahaan" => false,
-                            "waktu_kirim" => now(),
+                            "waktukirim" => now(),
                             "dibaca" => false,
                             "waktubaca" => null,
                             "isipesan" => $input['isiPesan']
@@ -221,7 +227,7 @@ class ChatController extends BaseController
                     }
                 }
 
-                return $this->sendResponse(['isi_pesan' => $input['pesan'], 'lampiranFile' => $lampiran->urlfile, 'target' => $target->namaorganisasi ?? $target->namaperusahaan], 'Chat sent successfully.');
+                return $this->sendResponse(['isi_pesan' => $input['isiPesan'], 'lampiranFile' => isset($lampiran) ? $lampiran->urlfile : null, 'target' => $target->namaorganisasi ?? $target->namaperusahaan], 'Chat sent successfully.');
             } else {
                 return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
             }

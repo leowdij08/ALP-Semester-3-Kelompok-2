@@ -17,7 +17,7 @@ class PembayaranPerusahaanController extends BaseController
     {
         try {
             if (Auth::id()) {
-                $dataPembayaran = PembayaranPerusahaan::where("id_perusahaan", Auth::user()->perusahaan->id_perusahaan)->get()->map(function ($pembayaran) {
+                $dataPembayaran = PembayaranPerusahaan::where("id_perusahaan", UserPerusahaan::where("id_user", Auth::user()->id)->id_perusahaan)->get()->map(function ($pembayaran) {
                     $rekening = $pembayaran->rekeningperusahaans;
                     $acara = $pembayaran->acaras;
                     $userOrganisasi = $acara->organisasis;
@@ -127,7 +127,7 @@ class PembayaranPerusahaanController extends BaseController
                     }
 
                     $input = $request->all();
-                    $rekening = RekeningPerusahaan::where("id_perusahaan", Auth::user()->perusahaan)->first();
+                    $rekening = RekeningPerusahaan::where("id_perusahaan", UserPerusahaan::where("id_user", Auth::user()->id))->first();
                     $data = [
                         "biayatotal" => $input['biayaTotal'],
                         "id_rekeningperusahaan" => $rekening->id_rekeningperusahaan,

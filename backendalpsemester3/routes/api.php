@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::controller(AcaraController::class)->prefix("acara")->group(function () {
         Route::get('', "getAll");
+        Route::get('getIncoming', "getIncoming");
         Route::get('{idAcara}', "getById");
         Route::get('search/{keyword}', "search");
         Route::post('filter', "filter");
@@ -47,7 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::controller(ChatController::class)->prefix("chat")->group(function () {
         Route::get('', "getAll");
         Route::get('{idChat}', "getById");
-        Route::post('', "sendChat");
+        Route::post('{idPenerima}', "sendChat");
     });
     Route::controller(UserPerusahaanController::class)->prefix("perusahaan")->group(function () {
         Route::get('', "getAll");

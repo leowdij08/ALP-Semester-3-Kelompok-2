@@ -52,6 +52,44 @@ class AcaraController extends BaseController
         }
     }
 
+    public function getIncoming(): JsonResponse
+    {
+        try {
+            if (Auth::id()) {
+                $dataAcara = Acara::where("tanggalacara", ">", now())->get()->map(function ($acara) {
+                    $userOrganisasi = $acara->organisasis;
+                    $biayaDikumpulkan = PembayaranPerusahaan::where('id_acara', $acara->id_acara)->count() > 0 ? array_sum(...PembayaranPerusahaan::where('id_acara', $acara->id_acara)->get()->map(function ($biaya) {
+                        return $biaya->biayatotal;
+                    })) : 0;
+                    $biayaDibutuhkan = $acara->biayadibutuhkan <= $biayaDikumpulkan ? 0 : $acara->biayadibutuhkan - $biayaDikumpulkan;
+                    return [
+                        "id_acara" => $acara->id_acara,
+                        "nama_acara" => $acara->namaacara,
+                        "tanggal_acara" => $acara->tanggalacara,
+                        "lokasi_acara" => $acara->lokasiacara,
+                        "biaya_dibutuhkan" => $biayaDibutuhkan,
+                        "kegiatan_acara" => $acara->kegiatanacara,
+                        "kota_berlangsung" => $acara->kotaberlangsung,
+                        "poster_acara" => $acara->poster_event,
+                        "proposal" => $acara->proposal,
+                        "organisasi" => [
+                            "id_organisasi" => $userOrganisasi->id_organisasi,
+                            "nama_organisasi" => $userOrganisasi->namaorganisasi,
+                            "kota_domisili_organisasi" => $userOrganisasi->kotadomisiliorganisasi,
+                            "nomor_telepon_organisasi" => $userOrganisasi->nomorteleponorganisasi
+                        ]
+                    ];
+                });
+
+                return $this->sendResponse($dataAcara, 'Events retrieved successfully.');
+            } else {
+                return $this->sendError('Unauthorised.', ['error' => 'Invalid Login'], 401);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.', $e->getMessage(), 500);
+        }
+    }
+
     public function getById($idAcara): JsonResponse
     {
         try {
@@ -109,7 +147,7 @@ class AcaraController extends BaseController
         try {
             if (Auth::id()) {
                 $filters = $request->all();
-                $dataAcara = Acara::where("biayadibutuhkan", (isset($filters["minHarga"]) ? ">=" : "!="), (isset($filters["minHarga"]) ? $filters["minHarga"] : ""))
+                $dataAcara = Acara::where("tanggalacara", ">", now())->where("biayadibutuhkan", (isset($filters["minHarga"]) ? ">=" : "!="), (isset($filters["minHarga"]) ? $filters["minHarga"] : ""))
                     ->where("biayadibutuhkan", (isset($filters["maxHarga"]) ? "<=" : "!="), (isset($filters["maxHarga"]) ? $filters["maxHarga"] : ""))
                     ->where("kotaberlangsung", (isset($filters["lokasi"]) ? "=" : "!="), (isset($filters["lokasi"]) ? $filters["lokasi"] : ""))
                     ->where("kegiatanacara", (isset($filters["kegiatan"]) ? "=" : "!="), (isset($filters["kegiatan"]) ? $filters["kegiatan"] : ""))
@@ -284,6 +322,7 @@ class AcaraController extends BaseController
                 $dataAcara = Acara::join('user_organisasi', 'event_organisasi.id_organisasi', '=', 'user_organisasi.id_organisasi')
                 ->whereRaw("concat(event_organisasi.namaacara, event_organisasi.tanggalacara, event_organisasi.lokasiacara, event_organisasi.biayadibutuhkan, event_organisasi.kegiatanacara, event_organisasi.kotaberlangsung) like ?", ["%$keyword%"])
                 ->orWhereRaw("concat(user_organisasi.namaorganisasi) like ?", ["%$keyword%"])
+                ->where("tanggalacara", ">", now())
                     ->get()->map(function ($acara) {
                         $biayaDikumpulkan = PembayaranPerusahaan::where('id_acara', $acara->id_acara)->count() > 0 ? array_sum(...PembayaranPerusahaan::where('id_acara', $acara->id_acara)->get()->map(function ($biaya) {
                             return $biaya->biayatotal;
@@ -435,7 +474,7 @@ class AcaraController extends BaseController
         try {
             if (Auth::id()) {
                 if (UserPerusahaan::where("id_perusahaan", $idPerusahaan)->count() > 0) {
-                    $dataAcara = PembayaranPerusahaan::where("id_rekeningperusahaan", Auth::user()->perusahaan->rekeningperusahaans->id_rekeningperusahaan)->groupBy("id_acara")->map(function ($pembayaran) {
+                    $dataAcara = PembayaranPerusahaan::where("id_rekeningperusahaan", UserPerusahaan::where("id_user", Auth::user()->id)->rekeningperusahaans->id_rekeningperusahaan)->groupBy("id_acara")->map(function ($pembayaran) {
                         $acara = $pembayaran->acaras;
                         $userOrganisasi = $acara->organisasis;
                         $biayaDikumpulkan = array_sum(...PembayaranPerusahaan::where('id_acara', $acara->id_acara)->get()->map(function ($biaya) {

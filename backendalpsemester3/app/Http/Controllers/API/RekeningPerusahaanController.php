@@ -16,7 +16,7 @@ class RekeningPerusahaanController extends BaseController
     {
         try {
             if (Auth::id()) {
-                $rekeningData = RekeningPerusahaan::where('id_perusahaan', Auth::user()->perusahaan)
+                $rekeningData = RekeningPerusahaan::where('id_perusahaan', UserPerusahaan::where("id_user", Auth::user()->id))
                     ->first()
                     ->map(function ($item) {
                         return [
@@ -40,7 +40,7 @@ class RekeningPerusahaanController extends BaseController
     {
         try {
             if (Auth::id()) {
-                if (RekeningPerusahaan::where('id_perusahaan', Auth::user()->perusahaan)->count > 0) {
+                if (RekeningPerusahaan::where('id_perusahaan', UserPerusahaan::where("id_user", Auth::user()->id))->count > 0) {
                     $validator = Validator::make($request->all(), [
                         'nomorrekeningperusahaan' => 'required',
                         'namabankperusahaan' => 'required|in:BCA,BCA Digital,SEABANK,Mandiri,BNI,DBS',
@@ -51,7 +51,7 @@ class RekeningPerusahaanController extends BaseController
                         return $this->sendError('Validation Error.', $validator->errors(), 400);
                     }
 
-                    $rekeningPerusahaan = RekeningPerusahaan::where('id_perusahaan', Auth::user()->perusahaan)->update([...$request->all(), "updated_at" => now()]);
+                    $rekeningPerusahaan = RekeningPerusahaan::where('id_perusahaan', UserPerusahaan::where("id_user", Auth::user()->id))->update([...$request->all(), "updated_at" => now()]);
 
                     return $this->sendResponse($rekeningPerusahaan, 'RekeningPerusahaan updated successfully.');
                 } else {
@@ -69,7 +69,7 @@ class RekeningPerusahaanController extends BaseController
     {
         try {
             if (Auth::id()) {
-                if (RekeningPerusahaan::where('id_perusahaan', Auth::user()->perusahaan)->count == 0) {
+                if (RekeningPerusahaan::where('id_perusahaan', UserPerusahaan::where("id_user", Auth::user()->id))->count == 0) {
                     $validator = Validator::make($request->all(), [
                         'nomorrekeningperusahaan' => 'required',
                         'namabankperusahaan' => 'required|in:BCA,BCA Digital,SEABANK,Mandiri,BNI,DBS',
@@ -80,7 +80,7 @@ class RekeningPerusahaanController extends BaseController
                         return $this->sendError('Validation Error.', $validator->errors(), 400);
                     }
 
-                    $rekeningPerusahaan = RekeningPerusahaan::create([...$request->all(), "id_perusahaan" => Auth::user()->perusahaan, "created_at" => now(), "updated_at" => now()]);
+                    $rekeningPerusahaan = RekeningPerusahaan::create([...$request->all(), "id_perusahaan" => UserPerusahaan::where("id_user", Auth::user()->id), "created_at" => now(), "updated_at" => now()]);
 
                     return $this->sendResponse($rekeningPerusahaan, 'RekeningPerusahaan created successfully.');
                 } else {
@@ -98,8 +98,8 @@ class RekeningPerusahaanController extends BaseController
     {
         try {
             if (Auth::id()) {
-                if (RekeningPerusahaan::where('id_perusahaan', Auth::user()->perusahaan)->count > 0) {
-                    return $this->sendResponse(['isDeleted' => RekeningPerusahaan::where('id_perusahaan', Auth::user()->perusahaan)->delete()], 'RekeningPerusahaan deleted successfully.');
+                if (RekeningPerusahaan::where('id_perusahaan', UserPerusahaan::where("id_user", Auth::user()->id))->count > 0) {
+                    return $this->sendResponse(['isDeleted' => RekeningPerusahaan::where('id_perusahaan', UserPerusahaan::where("id_user", Auth::user()->id))->delete()], 'RekeningPerusahaan deleted successfully.');
                 } else {
                     return $this->sendError('Not Found.', ['error' => 'This account does not have any rekening.'], 404);
                 }

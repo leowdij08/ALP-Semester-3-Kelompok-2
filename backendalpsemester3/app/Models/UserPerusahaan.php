@@ -33,4 +33,9 @@ class UserPerusahaan extends Model
     {
         return $this->belongsTo(PenanggungJawabPerusahaan::class, 'id_perusahaan');
     }
+
+    public function users()
+    {
+        return $this->belongsTo(User::class, 'id_user');
+    }
 }

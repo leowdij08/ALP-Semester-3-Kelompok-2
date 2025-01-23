@@ -9,12 +9,12 @@ class PesanChat extends Model
 {
     use HasFactory;
 
-    protected $table = 'pesans';
+    protected $table = 'pesan_chat';
 
     protected $fillable = [
         'id_chat',
         'pengirimisperusahaan',
-        'waktu_kirim',
+        'waktukirim',
         'dibaca',
         'waktubaca',
         'isipesan'
